@@ -8,7 +8,7 @@
 #For the compare we will create for every match new odds in the testing period session and we will compare againts the pinnacle close odds to see how far is our model compare to a professional bookmaker
 #testing period session = 2024/2025
 #Tuning session = 2023/2024
-#Mesure our modell accuraccy = how far from our modell decimals (like 0.65 wich means 65%) is pinnacle decimals (like 0.35) = 0.65-0.35 = 0.3
+#Mesure our modell accuraccy = how far from our modell decimals(in absolute value) (like 0.65 wich means 65%) is pinnacle decimals (like 0.35) = 0.65-0.35 = 0.3
 
 import pandas as pd 
 import datetime
@@ -66,10 +66,12 @@ naiv_modell_data["Real_home_probability"] = naiv_modell_data["Home_probability"]
 naiv_modell_data["Real_draw_probability"] = naiv_modell_data["Draw_probability"]/naiv_modell_data["sum_probability"]
 naiv_modell_data["Real_away_probability"] = naiv_modell_data["Away_probability"]/naiv_modell_data["sum_probability"]
 
-Missing_psch = 0
-Missing_pscd = 0
-Missing_psca = 0
+our_modell_result = naiv_modell_data[["Date" , "Time" , "HomeTeam" , "AwayTeam", "Real_home_probability" , "Real_draw_probability" , "Real_away_probability"]].copy()
+our_modell_result["naiv_model_home_prob"] = 1/(naiv_modell_odds["ODDS_of_home_win"].iloc[0])
+our_modell_result["naiv_model_draw_prob"] = 1/(naiv_modell_odds["ODDS_of_draw"].iloc[0])
+our_modell_result["naiv_model_away_prob"] = 1/(naiv_modell_odds["ODDS_of_away_win"].iloc[0])
+our_modell_result["Home_accuracy"] = 1 - (abs(our_modell_result["Real_home_probability"] - our_modell_result["naiv_model_home_prob"]))
+our_modell_result["Draw_accuracy"] = 1 - (abs(our_modell_result["Real_draw_probability"] - our_modell_result["naiv_model_draw_prob"]))
+our_modell_result["Away_accuracy"] = 1 - (abs(our_modell_result["Real_away_probability"] - our_modell_result["naiv_model_away_prob"]))
 
-print((naiv_modell_data[naiv_modell_data["PSCH"].isna() == True]))
-print((naiv_modell_data[naiv_modell_data["PSCD"].isna() == True]))
-print((naiv_modell_data[naiv_modell_data["PSCA"].isna() == True]))
+print(our_modell_result)
