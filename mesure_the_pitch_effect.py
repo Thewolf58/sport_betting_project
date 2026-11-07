@@ -8,7 +8,7 @@
 #For the compare we will create for every match new odds in the testing period session and we will compare againts the pinnacle close odds to see how far is our model compare to a professional bookmaker
 #testing period session = 2024/2025
 #Tuning session = 2023/2024
-#Mesure our modell accuraccy = how far from our modell decimals (like 0.65 wich means 65%) is pinnacle decimals (like 0.35) = 0.65-0.35 = 0.3 
+#Mesure our modell accuraccy = how far from our modell decimals (like 0.65 wich means 65%) is pinnacle decimals (like 0.35) = 0.65-0.35 = 0.3
 
 import pandas as pd 
 import datetime
@@ -29,14 +29,19 @@ total_data_match = len(tuning_data)
 
 pitch_where = tuning_data["FTR"].value_counts()
 
-avrage_percentages_pitch = pd.DataFrame({
+naiv_modell = pd.DataFrame({
     "avrage_%_of_home_win": [(pitch_where["H"]/total_data_match)*100],
     "avrage_%_of_draw": [(pitch_where["D"]/total_data_match)*100],
     "avrage_%_of_away_win": [(pitch_where["A"]/total_data_match)*100]
 })
 
-print(avrage_percentages_pitch)
+naiv_modell_odds = pd.DataFrame({
+    "ODDS_of_home_win": [1/(naiv_modell["avrage_%_of_home_win"][0]/100)],
+    "ODDS_of_draw": [1/(naiv_modell["avrage_%_of_draw"][0]/100)],
+    "ODDS_of_away_win": [1/(naiv_modell["avrage_%_of_away_win"][0]/100)],
+})
 
-if (round(avrage_percentages_pitch["avrage_%_of_home_win"][0] + avrage_percentages_pitch["avrage_%_of_draw"][0] + avrage_percentages_pitch["avrage_%_of_away_win"][0])) == 100:
-    print("Percent is good")
+print(naiv_modell_odds)
+
+
 
