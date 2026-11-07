@@ -9,6 +9,8 @@
 #testing period session = 2024/2025
 #Tuning session = 2023/2024
 #Mesure our modell accuraccy = how far from our modell decimals(in absolute value) (like 0.65 wich means 65%) is pinnacle decimals (like 0.35) = 0.65-0.35 = 0.3
+#The modell pass if the avrage (home , away and draw all over the 380 matches) accuraccy compared to pinnacle is bigger or equal than 85%
+#Because this is just one output and if it is that accurate than it is a good starting point 
 
 import pandas as pd 
 import datetime
@@ -54,8 +56,8 @@ naiv_modell_odds = pd.DataFrame({
 #2. part of the model is use the model on the testing_period_data
 
 #Rules if the odds is bigger than our odds for home win then we place a bet
-#First calculate the fair value of an odds 
 
+#First calculate the fair value of an odds 
 naiv_modell_data = testing_period_data[["Date" , "Time" , "HomeTeam" , "AwayTeam" , "FTR", "PSCH", "PSCD" , "PSCA"]].copy()
 naiv_modell_data['Home_probability'] = 1/naiv_modell_data["PSCH"]
 naiv_modell_data['Draw_probability'] = 1/naiv_modell_data["PSCD"]
@@ -66,6 +68,7 @@ naiv_modell_data["Real_home_probability"] = naiv_modell_data["Home_probability"]
 naiv_modell_data["Real_draw_probability"] = naiv_modell_data["Draw_probability"]/naiv_modell_data["sum_probability"]
 naiv_modell_data["Real_away_probability"] = naiv_modell_data["Away_probability"]/naiv_modell_data["sum_probability"]
 
+#Create a final table wich include all important data to our calculation
 our_modell_result = naiv_modell_data[["Date" , "Time" , "HomeTeam" , "AwayTeam", "Real_home_probability" , "Real_draw_probability" , "Real_away_probability"]].copy()
 our_modell_result["naiv_model_home_prob"] = 1/(naiv_modell_odds["ODDS_of_home_win"].iloc[0])
 our_modell_result["naiv_model_draw_prob"] = 1/(naiv_modell_odds["ODDS_of_draw"].iloc[0])
@@ -74,4 +77,18 @@ our_modell_result["Home_accuracy"] = 1 - (abs(our_modell_result["Real_home_proba
 our_modell_result["Draw_accuracy"] = 1 - (abs(our_modell_result["Real_draw_probability"] - our_modell_result["naiv_model_draw_prob"]))
 our_modell_result["Away_accuracy"] = 1 - (abs(our_modell_result["Real_away_probability"] - our_modell_result["naiv_model_away_prob"]))
 
-print(our_modell_result)
+#Calculate the avrage accuracy for each collum
+home_accuracy_mean = our_modell_result["Home_accuracy"].mean()
+draw_accuracy_mean = our_modell_result["Draw_accuracy"].mean()
+away_accuracy_mean = our_modell_result["Away_accuracy"].mean()
+
+#The final avrage accuracy num:
+avrage_accuracy = (home_accuracy_mean + draw_accuracy_mean + away_accuracy_mean)/3
+
+if avrage_accuracy >= 0.85:
+    naiv_model_pass = "True"
+else:
+    naiv_model_pass = "False"
+
+print(naiv_model_pass)
+print(avrage_accuracy)
