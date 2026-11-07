@@ -22,12 +22,21 @@ total_prem_match = 380 #From official premier league site
 tuning_data = pd.DataFrame(tuning_data).reset_index()
 tuning_data["Date"] =  pd.to_datetime(tuning_data["Date"] , dayfirst=True)
 
-if total_prem_match == len(tuning_data):
-    print("We have all match data")
+#The following function will watch if we have the same match data as the official premier leauge data
+def data_lenght_test(data):
+    if total_prem_match == len(data):
+        return "We have all match data"
+    else: 
+        return "we dont have the same number of data that we needed"
+
+
 
 total_data_match = len(tuning_data)
 
+
 pitch_where = tuning_data["FTR"].value_counts()
+
+#1. part is to build the model
 
 naiv_modell = pd.DataFrame({
     "avrage_%_of_home_win": [(pitch_where["H"]/total_data_match)*100],
@@ -35,13 +44,32 @@ naiv_modell = pd.DataFrame({
     "avrage_%_of_away_win": [(pitch_where["A"]/total_data_match)*100]
 })
 
+#The naiv_modell_odds will be our fair odds for all match in testing period data
 naiv_modell_odds = pd.DataFrame({
     "ODDS_of_home_win": [1/(naiv_modell["avrage_%_of_home_win"][0]/100)],
     "ODDS_of_draw": [1/(naiv_modell["avrage_%_of_draw"][0]/100)],
     "ODDS_of_away_win": [1/(naiv_modell["avrage_%_of_away_win"][0]/100)],
 })
 
-print(naiv_modell_odds)
+#2. part of the model is use the model on the testing_period_data
 
+#Rules if the odds is bigger than our odds for home win then we place a bet
+#First calculate the fair value of an odds 
 
+naiv_modell_data = testing_period_data[["Date" , "Time" , "HomeTeam" , "AwayTeam" , "FTR", "PSCH", "PSCD" , "PSCA"]].copy()
+naiv_modell_data['Home_probability'] = 1/naiv_modell_data["PSCH"]
+naiv_modell_data['Draw_probability'] = 1/naiv_modell_data["PSCD"]
+naiv_modell_data['Away_probability'] = 1/naiv_modell_data["PSCA"]
+naiv_modell_data['sum_probability'] = naiv_modell_data["Home_probability"] + naiv_modell_data["Draw_probability"] + naiv_modell_data["Away_probability"]
+naiv_modell_data["Brokerage_edge"] = naiv_modell_data["sum_probability"] - 1
+naiv_modell_data["Real_home_probability"] = naiv_modell_data["Home_probability"]/naiv_modell_data["sum_probability"]
+naiv_modell_data["Real_draw_probability"] = naiv_modell_data["Draw_probability"]/naiv_modell_data["sum_probability"]
+naiv_modell_data["Real_away_probability"] = naiv_modell_data["Away_probability"]/naiv_modell_data["sum_probability"]
 
+Missing_psch = 0
+Missing_pscd = 0
+Missing_psca = 0
+
+print((naiv_modell_data[naiv_modell_data["PSCH"].isna() == True]))
+print((naiv_modell_data[naiv_modell_data["PSCD"].isna() == True]))
+print((naiv_modell_data[naiv_modell_data["PSCA"].isna() == True]))
