@@ -2,6 +2,14 @@
 #The  basic of the mesurement is the concered and the scored goal
 #With that for each team we can create a separete avrage concered goals and avrage scored goals collum 
 #We just give rating to the teams wich is in the traning data so the promoted team dont get rating from the training data 
+#From the testing data we will cut down the promoted teams because for the teams we dont have good data 
+# ---- PASS LINE (written BEFORE any 24/25 test) ----
+# Metric: the same closeness score as the naive model, 1 - |our prob - Pinnacle prob|
+# Matches: 24/25 without promoted-team matches (~270), and both models are scored on these
+# Pass: team-strength score > naive score on the same matches
+# Fail: team-strength score <= naive score
+# Measured on: overall average / also home and away separately?  <- YOUR DECISION
+# Note: a win smaller than 0.01 = weak result (could be luck)
 
 import pandas as pd 
 import numpy as np
