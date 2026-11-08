@@ -17,6 +17,8 @@ Rules:
 
 Data:
     Data comes from: football-data.co.uk for each test we need to write down what data we use 
+    1. Naiv modell: from football-data.co.uk: Premier leauge data from 2023-2025 include 2 season: 23-24 , 24-25
+
 
 Benchmarks:
     For each test we write it down what we compare our model againts our modell(other bookmakers etc .)

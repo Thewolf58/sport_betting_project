@@ -31,10 +31,7 @@ def data_lenght_test(data):
     else: 
         return "we dont have the same number of data that we needed"
 
-
-
 total_data_match = len(tuning_data)
-
 
 pitch_where = tuning_data["FTR"].value_counts()
 
@@ -90,5 +87,3 @@ if avrage_accuracy >= 0.85:
 else:
     naiv_model_pass = "False"
 
-print(naiv_model_pass)
-print(avrage_accuracy)
