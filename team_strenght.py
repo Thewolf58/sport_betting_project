@@ -26,8 +26,13 @@ overall_table = pd.merge(overall_table , Away_team_concered_goals , on="Team" , 
 overall_table = overall_table.rename(columns={"FTHG_x": "scored_goal_home" , "FTAG_x": "scored_goal_away" , "FTAG_y": "concered_goal_home" , "FTHG_y": "concered_goal_away"})
 overall_table["scored_goals"] = overall_table["scored_goal_home"] + overall_table["scored_goal_away"]
 overall_table["concered_goals"] = overall_table["concered_goal_home"] + overall_table["concered_goal_away"]
+overall_table["avg_scored_goal_per_match"] = overall_table["scored_goals"]/38
+overall_table["avg_concered_goal_per_match"] = overall_table["concered_goals"]/38
 
 all_league_goal = overall_table["scored_goals"].sum()
 avrage_goal_per_game = all_league_goal/(len(overall_table)*38)
 
-print(avrage_goal_per_game)
+overall_table["avg_scored_goal/legauge_avg"] = overall_table["avg_scored_goal_per_match"]/avrage_goal_per_game
+overall_table["avg_concered_goal/legauge_avg"] = overall_table["avg_concered_goal_per_match"]/avrage_goal_per_game
+
+print(overall_table)
