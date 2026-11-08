@@ -43,5 +43,17 @@ avrage_goal_per_game = all_league_goal/(len(overall_table)*38)
 overall_table["avg_scored_goal/legauge_avg"] = overall_table["avg_scored_goal_per_match"]/avrage_goal_per_game
 overall_table["avg_concered_goal/legauge_avg"] = overall_table["avg_concered_goal_per_match"]/avrage_goal_per_game
 
-print(overall_table)
-print(testing_data)
+team_strenght_testing_data = testing_data[["Date" , "HomeTeam" , "AwayTeam" , "FTHG" , "FTAG" , "PSCH" , "PSCD" , "PSCA"]]
+
+match_with_goals_data = pd.merge(team_strenght_testing_data , overall_table , left_on="HomeTeam" , right_on="Team")
+match_with_goals_data = match_with_goals_data[["Date" , "HomeTeam", "AwayTeam" , "FTHG" , "FTAG" , "Team" , "avg_scored_goal/legauge_avg" , "avg_concered_goal/legauge_avg" , "PSCH" , "PSCD" , "PSCA"]]
+match_with_goals_data = match_with_goals_data.rename(columns={"avg_scored_goal/legauge_avg": "Home_attack" , "avg_concered_goal/legauge_avg": "Home_defend"})
+match_with_goals_data = pd.merge(match_with_goals_data , overall_table , left_on="AwayTeam" , right_on="Team")
+match_with_goals_data = match_with_goals_data.rename(columns={"avg_scored_goal/legauge_avg": "Away_attack" , "avg_concered_goal/legauge_avg": "Away_defend"})
+match_with_goals_data = match_with_goals_data[["Date" , "HomeTeam" , "AwayTeam" , "FTHG" , "FTAG" , "Home_attack" , "Home_defend" , "Away_attack" , "Away_defend" , "PSCH" , "PSCD" , "PSCA"]]
+final_data = match_with_goals_data
+
+final_data["exp_home_goals"] = avrage_goal_per_game * final_data["Home_attack"] * final_data["Away_defend"]
+final_data["exp_away_goals"] = avrage_goal_per_game * final_data["Away_attack"] * final_data["Home_defend"]
+
+print(final_data)
