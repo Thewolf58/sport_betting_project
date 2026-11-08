@@ -53,7 +53,14 @@ match_with_goals_data = match_with_goals_data.rename(columns={"avg_scored_goal/l
 match_with_goals_data = match_with_goals_data[["Date" , "HomeTeam" , "AwayTeam" , "FTHG" , "FTAG" , "Home_attack" , "Home_defend" , "Away_attack" , "Away_defend" , "PSCH" , "PSCD" , "PSCA"]]
 final_data = match_with_goals_data
 
-final_data["exp_home_goals"] = avrage_goal_per_game * final_data["Home_attack"] * final_data["Away_defend"]
-final_data["exp_away_goals"] = avrage_goal_per_game * final_data["Away_attack"] * final_data["Home_defend"]
+avrage_home_goal = team_strenght_training_data["FTHG"].mean()
+avrage_away_goal = team_strenght_training_data["FTAG"].mean()
+
+home_advangages = avrage_home_goal/avrage_away_goal #We use this to multiply exp_home goals
+
+final_data["exp_home_goals"] = avrage_home_goal * final_data["Home_attack"] * final_data["Away_defend"]
+final_data["exp_away_goals"] = avrage_away_goal * final_data["Away_attack"] * final_data["Home_defend"]
 
 print(final_data)
+
+
