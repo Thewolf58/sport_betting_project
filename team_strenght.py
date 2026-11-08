@@ -14,6 +14,7 @@
 import pandas as pd 
 import numpy as np
 
+
 traning_data = pd.read_csv("/Users/lukacsadam/python/sport_betting_project/datas/prem_data_23_24.csv" ,).reset_index()
 testing_data = pd.read_csv("/Users/lukacsadam/python/sport_betting_project/datas/prem_data_24_25.csv" ,).reset_index()
 
