@@ -8,7 +8,7 @@
 # Matches: 24/25 without promoted-team matches (~270), and both models are scored on these
 # Pass: team-strength score > naive score on the same matches
 # Fail: team-strength score <= naive score
-# Measured on: overall average / also home and away separately?  <- YOUR DECISION
+# Measured on: overall average
 # Note: a win smaller than 0.01 = weak result (could be luck)
 
 import pandas as pd 
@@ -44,3 +44,4 @@ overall_table["avg_scored_goal/legauge_avg"] = overall_table["avg_scored_goal_pe
 overall_table["avg_concered_goal/legauge_avg"] = overall_table["avg_concered_goal_per_match"]/avrage_goal_per_game
 
 print(overall_table)
+print(testing_data)
