@@ -13,7 +13,7 @@
 
 import pandas as pd 
 import numpy as np
-
+from scipy.stats import poisson
 
 traning_data = pd.read_csv("/Users/lukacsadam/python/sport_betting_project/datas/prem_data_23_24.csv" ,).reset_index()
 testing_data = pd.read_csv("/Users/lukacsadam/python/sport_betting_project/datas/prem_data_24_25.csv" ,).reset_index()
@@ -62,6 +62,29 @@ home_advangages = avrage_home_goal/avrage_away_goal #We use this to multiply exp
 final_data["exp_home_goals"] = avrage_home_goal * final_data["Home_attack"] * final_data["Away_defend"]
 final_data["exp_away_goals"] = avrage_away_goal * final_data["Away_attack"] * final_data["Home_defend"]
 
+#Poission modell calculation 
+
+def chance(home_exp , away_exp):
+    home_c = 0
+    away_c = 0
+    draw_c = 0
+    for h in range(11):
+        for a in range(11):
+            if h > a:
+                home_c += (poisson.pmf(h , home_exp) * poisson.pmf(a , away_exp))
+            if a > h: 
+                away_c += (poisson.pmf(h , home_exp) * poisson.pmf(a , away_exp))
+            if a == h: 
+                draw_c += (poisson.pmf(h , home_exp) * poisson.pmf(a , away_exp))
+    return([home_c , away_c , draw_c])
+
+final_data["H"] = chance(final_data["exp_home_goals"] , final_data["exp_away_goals"])[0]
+final_data["D"] = chance(final_data["exp_home_goals"] , final_data["exp_away_goals"])[2]
+final_data["A"] = chance(final_data["exp_home_goals"] , final_data["exp_away_goals"])[1]
+
+final_data["Pinnacle_margin_per_side"] = ((1/final_data["PSCH"] + 1/final_data["PSCD"] + 1/final_data["PSCA"]) - 1)/3
+final_data["Fair_H"] = final_data["PSCH"] - final_data["Pinnacle_margin_per_side"]
+final_data["Fair_D"] = final_data["PSCD"] - final_data["Pinnacle_margin_per_side"]
+final_data["Fair_A"] = final_data["PSCA"] - final_data["Pinnacle_margin_per_side"]
+
 print(final_data)
-
-
