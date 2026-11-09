@@ -82,9 +82,27 @@ final_data["H"] = chance(final_data["exp_home_goals"] , final_data["exp_away_goa
 final_data["D"] = chance(final_data["exp_home_goals"] , final_data["exp_away_goals"])[2]
 final_data["A"] = chance(final_data["exp_home_goals"] , final_data["exp_away_goals"])[1]
 
-final_data["Pinnacle_margin_per_side"] = ((1/final_data["PSCH"] + 1/final_data["PSCD"] + 1/final_data["PSCA"]) - 1)/3
-final_data["Fair_H"] = final_data["PSCH"] - final_data["Pinnacle_margin_per_side"]
-final_data["Fair_D"] = final_data["PSCD"] - final_data["Pinnacle_margin_per_side"]
-final_data["Fair_A"] = final_data["PSCA"] - final_data["Pinnacle_margin_per_side"]
+final_data["SUM_probability"] = (1/final_data["PSCH"] + 1/final_data["PSCD"] + 1/final_data["PSCA"])
+final_data["Pinnacle_margin"] = final_data["SUM_probability"]-1
+final_data["Home_prob_odds"] = 1/final_data["PSCH"]
+final_data["Draw_prob_odds"] = 1/final_data["PSCD"]
+final_data["Away_prob_odds"] = 1/final_data["PSCA"]
+final_data["Fair_home"] = final_data["Home_prob_odds"]/final_data["SUM_probability"]
+final_data["Fair_draw"] = final_data["Draw_prob_odds"]/final_data["SUM_probability"]
+final_data["Fair_away"] = final_data["Away_prob_odds"]/final_data["SUM_probability"]
 
-print(final_data)
+accuracy_table = final_data[["Date" , "HomeTeam" , "AwayTeam" , "FTHG" , "FTAG" , "PSCH" , "PSCA" , "H" , "D" , "A" , "Fair_home" , "Fair_draw" , "Fair_away" , "Home_prob_odds" , "Draw_prob_odds" , "Away_prob_odds"]]
+accuracy_table["closness_H"] = 1-(abs(accuracy_table["H"] - accuracy_table["Fair_home"]))
+accuracy_table["closness_D"] = 1-(abs(accuracy_table["D"] - accuracy_table["Fair_draw"]))
+accuracy_table["closness_A"] = 1-(abs(accuracy_table["A"] - accuracy_table["Fair_away"]))
+
+avrage_accuracy = (accuracy_table["closness_H"].mean() + accuracy_table["closness_D"].mean() + accuracy_table["closness_A"].mean())/3
+naive_model_accuracy = 0.881
+
+if avrage_accuracy > 0.881:
+    print(avrage_accuracy)
+    print("Team_strenght_model_better")
+elif avrage_accuracy < 0.881:
+    print(avrage_accuracy)
+    print("naive_modell_was_better")
+

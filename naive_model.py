@@ -87,3 +87,4 @@ if avrage_accuracy >= 0.85:
 else:
     naiv_model_pass = "False"
 
+print(avrage_accuracy)
