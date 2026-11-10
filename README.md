@@ -1,59 +1,65 @@
-# Premier League match Probabililty Model
+# Premier League match Probability Model
 
 ## Goal
-To improve my python and statistics skills 
+To improve my Python and statistics skills 
 Learn the basics of machine learning
-Develop a model that is precisely calculate outcome probabilities to bookmakers 
+Develop a model that precisely calculates outcome probabilities close to the bookmakers 
 
 
-## Definition of done 
-Create a naive modell wich only calculate the probability by home advantage - [ ]
-Create a team_strenght modell wich calculate the probability of each outcome from a strenght modell and home advantage formula - [ ]
-Test how precise the naive modell compared againts professional bookmakers probability - [ ]
-Test how precise the team_strenght modell againts professional bookmakers probability - [ ]
-Compare wich modell is better - [ ]
-Test the better model in 2025-2026 premier league data - [ ]
-Write down the modell return 
-Write down the probabililty accuratcy againts Pinnacle's probability - [ ]
-Clean your code - [ ]
-Create a professional readme , gitignore , requirements document - [ ]
-Commit the final file to github - [ ]
+## Definition of Done 
+Deadline: 2026-11-20
+- [x] Create a naive model which calculate the probability of H/D/A by home advantage 
+- [x] Create a team strength model which calculate the probability of each outcome (H/D/A) from a strength model and home advantage formula 
+- [x] Test how precise the naive model compared against professional bookmakers probability 
+- [x] Test how precise the team strength model against professional bookmakers probability 
+- [ ] Compare the accuracy of the naive model and the team strength model in the same 272 data 
+- [ ] Compare which model is better on Brier score include the Pinnacle's probability too on the same 272 data 
+- [ ] Test the better model (which is have the better Brier score) in 2025-2026 Premier League data 
+- [ ] Write down the model accuracy in the 2025-2026 data against the Pinnacle probability 
+- [ ] Clean your code: No absolute path , no unused code , correct spelling , one command runs everything
+- [ ] Create a professional README , gitignore , requirements document: README have a clear goal , how to run , results table , and a review at the end of it 
+- [ ] Commit the final file to GitHub 
 
 
-## Question:
-Can i good enoght to develop a probability estimating modell wich is close to professional bookmakers 
+## Question
+Can I good enough to develop a probability estimating model which is close to professional bookmakers
+Can I produce good quality documentation and code to be able to publish it 
+Can I finally finish a project before I move to an other 
 
 
 ## Rules
 In this project the primary goal is to learn as much as we can 
-So we only "trade" with paper money until we see result 
-A modell only use data before an event happen to avoid overlook bias 
+So we only develop these models for education only 
+A model only use data before an event happen to avoid overlook bias 
 Before every test we need a why and when the test is going to fail and when it going to pass the test
-We will only use the 2025-2026 premier league season data to test our best strategy
+We will only use the 2025-2026 Premier League season data to test our best strategy
+Because we use only training season to train our models we can't train our model for the promoted teams so we only test the models in 272 match/season
 
 ## Data
  Data comes from: football-data.co.uk for each test we need to write down what data we use 
- 1. Naiv modell: from football-data.co.uk: Premier leauge data from 2023-2025 include 2 season: 23-24 , 24-25
- 2. Team strenght modell: from football-data.co.uk: Premier leauge data from 2023-2025 include 2 season: 23-24 , 24-25
+ 1. Naive model: from football-data.co.uk: Premier league data from 2023-2025 include 2 season: 23-24 , 24-25
+ 2. Team strength model: from football-data.co.uk: Premier league data from 2023-2025 include 2 season: 23-24 , 24-25
 
 
 ## Benchmarks
-For each test we write it down what we compare our model againts our modell(other bookmakers etc .):
-1. Naiv modell: we compared againts the offical pinnacle probability number from the odds
-2. We will compare againts the Naiv modell accuracy and the pinnacle odds 
+For each test we write it down what we compare our model against our model(other bookmakers etc .):
+1. Naive model: we compared against the official Pinnacle probability number from the odds
+2. We will compare against the Naive model accuracy and the Pinnacle odds 
     
 
 ## Roadmap
-1. Naiv modell that mesure in 24/25 session the home advantage only and use that numbers to see that in the following season wich match have a lower probability that we expected and we bet that lower probability 
-2. Team strenght modell: it watches the avrage scored and avrage concered goals for all team in 23/24 and it will test it in 24/25 (we will execute the promoted teams from the 24/25 teams because we dont have data from they)
+1. Naive model that measure in 24/25 session the home advantage only and use that numbers to see that in the following season which match have a lower probability that we expected and we bet that lower probability 
+2. Team strength model: it watches the average scored and average conceded goals for all team in 23/24 and it will test it in 24/25 (we will exclude the promoted teams from the 24/25 teams because we don't have data from they)
+3. Write each model Brier score put every model's result into an overall xlsx table and compare the Naive model the Team strength model and the Pinnacle's Brier score against each other and look at it which have the best 
 
 ## Result
 1. Naive model = 0.881 vs Pinnacle (24/25) Pass (line >= 0.85)
-2. Team strenght modell: Pass line: Better accuracy to the Pinnacle probability than the Naiv modell , Pass: 
+2. Team strength model: Pass line: Better accuracy to the Pinnacle probability than the Naive model , Pass:
+3. 2025/26 season data model Pass line: If the Pinnacle Brier score > Our model Brier score
 
 ## How to run
 Python 3.9+
 pip install -r requirements.txt 
 to download the needed data run the download_data.py file 
-if you want to see the accuracy of the naive modell run the naive_model_py
-if you want to see the accuracy of the team strenght modell run the team_strenght.py
+if you want to see the accuracy of the naive model run the naive_model.py
+if you want to see the accuracy of the team strength model run the team_strenght.py
