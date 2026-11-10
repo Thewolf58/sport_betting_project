@@ -14,6 +14,7 @@
 
 import pandas as pd 
 from scipy.stats import poisson
+from naive_model import naiv_modell
 
 traning_data = pd.read_csv("/Users/lukacsadam/python/sport_betting_project/datas/prem_data_23_24.csv" ,).reset_index()
 testing_data = pd.read_csv("/Users/lukacsadam/python/sport_betting_project/datas/prem_data_24_25.csv" ,).reset_index()
@@ -97,14 +98,6 @@ accuracy_table["closness_D"] = 1-(abs(accuracy_table["D"] - accuracy_table["Fair
 accuracy_table["closness_A"] = 1-(abs(accuracy_table["A"] - accuracy_table["Fair_away"]))
 
 avrage_accuracy = (accuracy_table["closness_H"].mean() + accuracy_table["closness_D"].mean() + accuracy_table["closness_A"].mean())/3
-naive_model_accuracy = 0.881
-
-if avrage_accuracy > 0.881:
-    print(avrage_accuracy)
-    print("Team_strenght_model_better")
-elif avrage_accuracy < 0.881:
-    print(avrage_accuracy)
-    print("naive_modell_was_better")
 
 probability_for_matches_with_our_model = accuracy_table[["Date" , "HomeTeam" , "AwayTeam" , "FTHG" , "FTAG" , "H" , "D" , "A"]].copy()
 probability_for_matches_with_our_model["H"] = probability_for_matches_with_our_model["H"]*100 
@@ -112,5 +105,31 @@ probability_for_matches_with_our_model["D"] = probability_for_matches_with_our_m
 probability_for_matches_with_our_model["A"] = probability_for_matches_with_our_model["A"]*100 
 probability_for_matches_with_our_model = probability_for_matches_with_our_model.rename(columns={"H": "H_%" , "D": "D_%" , "A": "A_%"})
 
-print(probability_for_matches_with_our_model)
+#Run the naive modell
+avrage_home_goal_odds = avrage_home_goal
+avrage_away_goal_odds = avrage_away_goal
 
+naive_modell_run_on_the_same_sample = final_data[["PSCH" , "PSCD" , "PSCA" , "Fair_home" , "Fair_draw" , "Fair_away"]].copy()
+naive_modell_run_on_the_same_sample["naive_model_home_win_%"] = naiv_modell["avrage_%_of_home_win"].iloc[0]/100
+naive_modell_run_on_the_same_sample["naive_model_draw_%"] = naiv_modell["avrage_%_of_draw"].iloc[0]/100
+naive_modell_run_on_the_same_sample["naive_model_away_win_%"] = naiv_modell["avrage_%_of_away_win"][0]/100
+naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"] = (naive_modell_run_on_the_same_sample["naive_model_home_win_%"] - naive_modell_run_on_the_same_sample["Fair_home"]).abs()
+naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"] = naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"] + (naive_modell_run_on_the_same_sample["naive_model_away_win_%"] - naive_modell_run_on_the_same_sample["Fair_away"]).abs()
+naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"]= naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"] + (naive_modell_run_on_the_same_sample["naive_model_draw_%"] - naive_modell_run_on_the_same_sample["Fair_draw"]).abs()
+naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"] = naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"]/3
+
+avrage_diff_from_pinnacle = (naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"]).mean()
+avrage_accuracy_naive_model = 1 - avrage_diff_from_pinnacle
+
+print(naive_modell_run_on_the_same_sample)
+
+naive_model_accuracy = avrage_accuracy_naive_model
+
+if avrage_accuracy > naive_model_accuracy:
+    print(avrage_accuracy)
+    print("Team_strenght_model_better")
+elif avrage_accuracy < naive_model_accuracy:
+    print(avrage_accuracy)
+    print("naive_modell_was_better")
+
+print(naive_model_accuracy)

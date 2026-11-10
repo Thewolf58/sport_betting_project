@@ -12,7 +12,7 @@ Deadline: 2026-11-20
 - [x] Create a team strength model which calculate the probability of each outcome (H/D/A) from a strength model and home advantage formula 
 - [x] Test how precise the naive model compared against professional bookmakers probability 
 - [x] Test how precise the team strength model against professional bookmakers probability 
-- [ ] Compare the accuracy of the naive model and the team strength model in the same 272 data 
+- [x] Compare the accuracy of the naive model and the team strength model in the same 272 data 
 - [ ] Compare which model is better on Brier score include the Pinnacle's probability too on the same 272 data 
 - [ ] Test the better model (which is have the better Brier score) in 2025-2026 Premier League data 
 - [ ] Write down the model accuracy in the 2025-2026 data against the Pinnacle probability 
@@ -54,7 +54,7 @@ For each test we write it down what we compare our model against our model(other
 
 ## Result
 1. Naive model = 0.881 vs Pinnacle (24/25) Pass (line >= 0.85)
-2. Team strength model: Pass line: Better accuracy to the Pinnacle probability than the Naive model , Pass:
+2. Team strength model: Pass line: Better accuracy to the Pinnacle probability than the Naive model , Pass: True , Team strenght: 0.935 , Naive model: 0.897
 3. 2025/26 season data model Pass line: If the Pinnacle Brier score > Our model Brier score
 
 ## How to run
