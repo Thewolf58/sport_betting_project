@@ -106,3 +106,11 @@ elif avrage_accuracy < 0.881:
     print(avrage_accuracy)
     print("naive_modell_was_better")
 
+probability_for_matches_with_our_model = accuracy_table[["Date" , "HomeTeam" , "AwayTeam" , "FTHG" , "FTAG" , "H" , "D" , "A"]].copy()
+probability_for_matches_with_our_model["H"] = probability_for_matches_with_our_model["H"]*100 
+probability_for_matches_with_our_model["D"] = probability_for_matches_with_our_model["D"]*100 
+probability_for_matches_with_our_model["A"] = probability_for_matches_with_our_model["A"]*100 
+probability_for_matches_with_our_model = probability_for_matches_with_our_model.rename(columns={"H": "H_%" , "D": "D_%" , "A": "A_%"})
+
+print(probability_for_matches_with_our_model)
+

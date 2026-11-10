@@ -1,17 +1,28 @@
 # Premier League match Probabililty Model
 
 ## Goal
-For me personally to improve my python statistics skills and learn Machine learning 
-And develop a model that is close to the probability that the bookmakers see 
-And if possibe create a Modell that can gain profitr 
+To improve my python and statistics skills 
+Learn the basics of machine learning
+Develop a model that is precisely calculate outcome probabilities to bookmakers 
 
-## efinition of done 
-Created a naive modell wich only calculate the probability by home advantage -[]
+
+## Definition of done 
+Create a naive modell wich only calculate the probability by home advantage - [ ]
+Create a team_strenght modell wich calculate the probability of each outcome from a strenght modell and home advantage formula - [ ]
+Test how precise the naive modell compared againts professional bookmakers probability - [ ]
+Test how precise the team_strenght modell againts professional bookmakers probability - [ ]
+Compare wich modell is better - [ ]
+Test the better model in 2025-2026 premier league data - [ ]
+Write down the modell return 
+Write down the probabililty accuratcy againts Pinnacle's probability - [ ]
+Clean your code - [ ]
+Create a professional readme , gitignore , requirements document - [ ]
+Commit the final file to github - [ ]
 
 
 ## Question:
-I want to know that whether I'm good enoght or not to develop a modell close to the bookmakers
-And can i learn machine learning and what is that, how difficult it is 
+Can i good enoght to develop a probability estimating modell wich is close to professional bookmakers 
+
 
 ## Rules
 In this project the primary goal is to learn as much as we can 
@@ -44,5 +55,5 @@ For each test we write it down what we compare our model againts our modell(othe
 Python 3.9+
 pip install -r requirements.txt 
 to download the needed data run the download_data.py file 
- if you want to see the accuracy of the naive modell run the naive_model_py
+if you want to see the accuracy of the naive modell run the naive_model_py
 if you want to see the accuracy of the team strenght modell run the team_strenght.py
