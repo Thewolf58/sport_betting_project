@@ -15,7 +15,6 @@
 
 import pandas as pd 
 import datetime
-import numpy as np
 
 tuning_data = pd.read_csv("/Users/lukacsadam/python/sport_betting_project/datas/prem_data_23_24.csv")
 testing_period_data = pd.read_csv("/Users/lukacsadam/python/sport_betting_project/datas/prem_data_24_25.csv")

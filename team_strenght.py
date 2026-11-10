@@ -13,7 +13,6 @@
 #Result: 0.935 , PASS
 
 import pandas as pd 
-import numpy as np
 from scipy.stats import poisson
 
 traning_data = pd.read_csv("/Users/lukacsadam/python/sport_betting_project/datas/prem_data_23_24.csv" ,).reset_index()
