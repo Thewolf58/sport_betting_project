@@ -10,6 +10,7 @@
 # Fail: team-strength score <= naive score
 # Measured on: overall average
 # Note: a win smaller than 0.01 = weak result (could be luck)
+#Result: 0.935 , PASS
 
 import pandas as pd 
 import numpy as np

@@ -11,6 +11,7 @@
 #Mesure our modell accuraccy = how far from our modell decimals(in absolute value) (like 0.65 wich means 65%) is pinnacle decimals (like 0.35) = 0.65-0.35 = 0.3
 #The modell pass if the avrage (home , away and draw all over the 380 matches) accuraccy compared to pinnacle is bigger or equal than 85%
 #Because this is just one output and if it is that accurate than it is a good starting point 
+#Result: 0,881 , PASS
 
 import pandas as pd 
 import datetime
