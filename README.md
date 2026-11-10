@@ -58,8 +58,8 @@ For each test we write it down what we compare our model against our model(other
 3. 2025/26 season data model Pass line: If the Pinnacle Brier score > Our model Brier score
 
 ## How to run
-Python 3.9+
-pip install -r requirements.txt 
-to download the needed data run the download_data.py file 
-if you want to see the accuracy of the naive model run the naive_model.py
-if you want to see the accuracy of the team strength model run the team_strenght.py
+1. Python 3.9+
+2. pip install -r requirements.txt 
+3. to download the needed data run the download_data.py file 
+4. if you want to see the accuracy of the naive model run the naive_model.py
+5. if you want to see the accuracy of the team strength model run the team_strength.py
