@@ -66,7 +66,7 @@ naiv_modell_data["Real_draw_probability"] = naiv_modell_data["Draw_probability"]
 naiv_modell_data["Real_away_probability"] = naiv_modell_data["Away_probability"]/naiv_modell_data["sum_probability"]
 
 #Create a final table wich include all important data to our calculation
-our_modell_result = naiv_modell_data[["Date" , "Time" , "HomeTeam" , "AwayTeam", "Real_home_probability" , "Real_draw_probability" , "Real_away_probability"]].copy()
+our_modell_result = naiv_modell_data[["Date" , "Time" , "HomeTeam" , "AwayTeam", "Real_home_probability" , "Real_draw_probability" , "Real_away_probability" , ]].copy()
 our_modell_result["naiv_model_home_prob"] = 1/(naiv_modell_odds["ODDS_of_home_win"].iloc[0])
 our_modell_result["naiv_model_draw_prob"] = 1/(naiv_modell_odds["ODDS_of_draw"].iloc[0])
 our_modell_result["naiv_model_away_prob"] = 1/(naiv_modell_odds["ODDS_of_away_win"].iloc[0])

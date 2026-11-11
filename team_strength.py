@@ -10,7 +10,7 @@
 # Fail: team-strength score <= naive score
 # Measured on: overall average
 # Note: a win smaller than 0.01 = weak result (could be luck)
-#Result: 0.935 , PASS
+#Result: team strenght modell: 0.935 , naive modell: 0.897 PASS: 
 
 import pandas as pd 
 from scipy.stats import poisson
@@ -109,7 +109,7 @@ probability_for_matches_with_our_model = probability_for_matches_with_our_model.
 avrage_home_goal_odds = avrage_home_goal
 avrage_away_goal_odds = avrage_away_goal
 
-naive_modell_run_on_the_same_sample = final_data[["PSCH" , "PSCD" , "PSCA" , "Fair_home" , "Fair_draw" , "Fair_away"]].copy()
+naive_modell_run_on_the_same_sample = final_data[["PSCH" , "PSCD" , "PSCA" , "Fair_home" , "Fair_draw" , "Fair_away" , "FTHG" , "FTAG"]].copy()
 naive_modell_run_on_the_same_sample["naive_model_home_win_%"] = naiv_modell["avrage_%_of_home_win"].iloc[0]/100
 naive_modell_run_on_the_same_sample["naive_model_draw_%"] = naiv_modell["avrage_%_of_draw"].iloc[0]/100
 naive_modell_run_on_the_same_sample["naive_model_away_win_%"] = naiv_modell["avrage_%_of_away_win"][0]/100
@@ -120,9 +120,6 @@ naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"] = naive_modell_run_on_
 
 avrage_diff_from_pinnacle = (naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"]).mean()
 avrage_accuracy_naive_model = 1 - avrage_diff_from_pinnacle
-
-print(naive_modell_run_on_the_same_sample)
-
 naive_model_accuracy = avrage_accuracy_naive_model
 
 if avrage_accuracy > naive_model_accuracy:
