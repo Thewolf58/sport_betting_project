@@ -10,7 +10,7 @@
 # Fail: team-strength score <= naive score
 # Measured on: overall average
 # Note: a win smaller than 0.01 = weak result (could be luck)
-#Result: team strenght modell: 0.935 , naive modell: 0.897 PASS: 
+#Result: team strenght modell: 0.935 , naive modell: 0.897 PASS: True
 
 import pandas as pd 
 from scipy.stats import poisson

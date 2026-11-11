@@ -7,7 +7,7 @@
 #Result:
     #Pinnacle_brier_score: 0.6187
     #Team_strenght_brier_score: 0.6459
-    #Naive_model_brier_score: 0.6594
+    #Naive_model_brier_score: 0.6595
 #So the Team strenght model won.
 import pandas as pd
 from team_strength import accuracy_table #the team strenght data 
