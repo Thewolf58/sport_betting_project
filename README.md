@@ -55,7 +55,7 @@ For each test we write it down what we compare our model against our model(other
 ## Result
 1. Naive model = 0.881 vs Pinnacle (24/25) Pass (line >= 0.85)
 2. Team strength model: Pass line: Better accuracy to the Pinnacle probability than the Naive model , Pass: True , Team strength: 0.935 , Naive model: 0.897
-3. Brier model: Pass: From our model wich have the lower brier score , Pass: team strenght model , team strenght modell: 0.935 , naive modell: 0.897
+3. Brier model: Pass: From our model wich have the lower brier score , Pass: team strenght model , team_strenght model: 0.6459 , naive model: 0.6595 , Pinnacle: 0.6187
 3. 2025/26 season data model Pass line: If the Pinnacle Brier score > Our model Brier score , 
 
 ## How to run
