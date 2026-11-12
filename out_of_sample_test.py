@@ -31,25 +31,17 @@ test_raw_prob = raw_probability_from_odds(testing_data)
 #Calculate the real probabilities from the raw probability
 def real_probability_from_raw_prob(data):
     data = data.copy()
-    data["bookmaker_edge"] = abs((data["bookmaker_home_raw_prob"] + data["bookmaker_draw_raw_prob"] + data["bookmaker_away_raw_prob"]) - 1)
-    data["edge_per_side"] = data["bookmaker_edge"]/3
-    data["Real_home_prob"] = data["bookmaker_home_raw_prob"] - data["edge_per_side"]
-    data["Real_draw_prob"] = data["bookmaker_draw_raw_prob"] - data["edge_per_side"]
-    data["Real_away_prob"] = data["bookmaker_away_raw_prob"] - data["edge_per_side"]
+    data["sum_prob"] = (data["bookmaker_home_raw_prob"] + data["bookmaker_draw_raw_prob"] + data["bookmaker_away_raw_prob"])
+    data["Real_home_prob"] = data["bookmaker_home_raw_prob"]/data["sum_prob"]
+    data["Real_draw_prob"] = data["bookmaker_draw_raw_prob"]/data["sum_prob"]
+    data["Real_away_prob"] = data["bookmaker_away_raw_prob"]/data["sum_prob"]
     return data
 
-#Used real_probability function to gather the real probability from the raw probability (raw probability - bookmaker edge)
+#Used real_probability function to gather the real probability from the side / side + bookmaker edge
 train_real_prob = real_probability_from_raw_prob(train_raw_prob)
 test_real_prob = real_probability_from_raw_prob(test_raw_prob)
 
-#split training data to outcomes:
-home_win_data = train_real_prob[train_real_prob["FTR"] == "H"]
-draw_data = train_real_prob[train_real_prob["FTR"] == "D"]
-away_win_data = train_real_prob[train_real_prob["FTR"] == "A"]
-
 #Calculate the home advantage:
-fair_home = 1/3
-avg_prob_of_home = len(home_win_data)/len(train_real_prob)
-home_advantage = avg_prob_of_home - fair_home
+avg_away_goal = train_real_prob["FTAG"].mean()
+avg_home_goal = train_real_prob["FTHG"].mean()
 
-print(train_real_prob)
