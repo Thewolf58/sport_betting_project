@@ -8,7 +8,7 @@
 import pandas as pd 
 from scipy.stats import poisson
 import numpy as np
-from team_strength import chance
+from team_strength import chance #This function output will be (home_chance , away_chance , draw_chance)
 
 #Import the original raw data
 raw_training_data = pd.read_csv("datas/prem_data_24_25.csv")
@@ -52,7 +52,8 @@ avg_away_goal = train_real_prob["FTAG"].mean()
 avg_home_goal = train_real_prob["FTHG"].mean()
 
 #This function calculate from the training season avrage scored and concered goal for each team how strong their defend and how strong their attack 
-def training_strengh_data(data):
+def training_strengh_data(data_real):
+    data = data_real.copy()
     home_team_score = data.groupby("HomeTeam")["FTHG"].sum()
     away_team_score = data.groupby("AwayTeam")["FTAG"].sum()
     home_team_concered = data.groupby("HomeTeam")["FTAG"].sum()
@@ -77,5 +78,18 @@ def training_strengh_data(data):
     return data
 
 training_data_strenght_calc = training_strengh_data(train_real_prob)
-print(training_data_strenght_calc)
+test_data_strenght_calc = training_strengh_data(train_real_prob)
 
+training_data_strenght_calc["home_expected_goal"] = avg_home_goal * training_data_strenght_calc["home_attack_score"] * training_data_strenght_calc["away_defend_score"]
+training_data_strenght_calc["away_expected_goal"] = avg_away_goal * training_data_strenght_calc["away_attack_score"] * training_data_strenght_calc["home_defend_score"]
+test_data_strenght_calc["home_expected_goal"] = avg_home_goal * training_data_strenght_calc["home_attack_score"] * training_data_strenght_calc["away_defend_score"]
+test_data_strenght_calc["away_expected_goal"] = avg_away_goal * training_data_strenght_calc["away_attack_score"] * training_data_strenght_calc["home_defend_score"]
+
+def add_probability_to_strenght(data): 
+    data["H"] = chance(data["home_expected_goal"] , data["away_expected_goal"])[0]
+    data["A"] = chance(data["home_expected_goal"] , data["away_expected_goal"])[1]
+    data["D"] = chance(data["home_expected_goal"] , data["away_expected_goal"])[2]
+    return data
+
+print(add_probability_to_strenght(training_data_strenght_calc))
+print(add_probability_to_strenght(test_data_strenght_calc))
