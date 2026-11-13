@@ -7,6 +7,8 @@
 
 import pandas as pd 
 from scipy.stats import poisson
+import numpy as np
+from team_strength import chance
 
 #Import the original raw data
 raw_training_data = pd.read_csv("datas/prem_data_24_25.csv")
@@ -41,7 +43,39 @@ def real_probability_from_raw_prob(data):
 train_real_prob = real_probability_from_raw_prob(train_raw_prob)
 test_real_prob = real_probability_from_raw_prob(test_raw_prob)
 
+#Drop the raws probability from the real_prob datas
+train_real_prob = train_real_prob.drop(columns=["bookmaker_home_raw_prob" ,"bookmaker_draw_raw_prob" , "bookmaker_away_raw_prob"])
+test_real_prob = test_real_prob.drop(columns=["bookmaker_home_raw_prob" ,"bookmaker_draw_raw_prob" , "bookmaker_away_raw_prob"])
+
 #Calculate the home advantage:
 avg_away_goal = train_real_prob["FTAG"].mean()
 avg_home_goal = train_real_prob["FTHG"].mean()
+
+#This function calculate from the training season avrage scored and concered goal for each team how strong their defend and how strong their attack 
+def training_strengh_data(data):
+    home_team_score = data.groupby("HomeTeam")["FTHG"].sum()
+    away_team_score = data.groupby("AwayTeam")["FTAG"].sum()
+    home_team_concered = data.groupby("HomeTeam")["FTAG"].sum()
+    away_team_concered = data.groupby("AwayTeam")["FTHG"].sum()
+    avg_scored_goal_match = (home_team_score + away_team_score)/38
+    avg_concered_goal_match = (home_team_concered + away_team_concered)/38
+    goal_per_match = len(data)/(data["FTHG"].sum() + data["FTAG"].sum())
+    reset_avg_scored_goal_match = avg_scored_goal_match.reset_index()
+    reset_avg_concered_goal_match = avg_concered_goal_match.reset_index()
+    reset_avg_concered_goal_match = reset_avg_concered_goal_match.rename(columns={"0" : "1"})
+    team_avg_table = pd.merge(reset_avg_concered_goal_match , reset_avg_scored_goal_match , on="HomeTeam")
+    team_avg_table = team_avg_table.rename(columns={"0_x": "avg_concered_goal" , "0_y": "avg_scored_goal"})
+    team_avg_table["attack_score"] = team_avg_table["avg_scored_goal"]/team_avg_table["avg_scored_goal"].mean()
+    team_avg_table["deffend_score"] = team_avg_table["avg_concered_goal"]/team_avg_table["avg_concered_goal"].mean()
+    team_avg_table = team_avg_table.set_index("HomeTeam")
+    team_avg_table = team_avg_table.rename(columns={"HomeTeam" : "Team"})
+    data = pd.merge(data , team_avg_table , left_on="HomeTeam" , right_index=True)
+    data = data.rename(columns={"attack_score": "home_attack_score" , "deffend_score": "home_defend_score"})
+    data = pd.merge(data , team_avg_table , left_on="AwayTeam" , right_index=True)
+    data = data.rename(columns={"attack_score": "away_attack_score" , "deffend_score": "away_defend_score"})
+    data = data.drop(columns=["avg_concered_goal_x" , "avg_scored_goal_x" , "avg_concered_goal_y" , "avg_scored_goal_y"])
+    return data
+
+training_data_strenght_calc = training_strengh_data(train_real_prob)
+print(training_data_strenght_calc)
 
