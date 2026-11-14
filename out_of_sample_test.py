@@ -1,15 +1,18 @@
-#Out of sample test
+#Out of sample test (train: 2024/25 , test: 2025/26 , 272 matches, promoted teams exluded):
 #In this test we are going to test our team_strenght_model because it got the greater result in the brier score test
 #The learning period the 2024-2025 season only
 #Test: 2025/26, promoted teams excluded, same matches for all models 
 #Pass: if the brier score will lower than the Pinnacle's brier score
 #Look at once, no retest watever the result
-#Brier score reproduction test the brier score on training data needed to be: 0.6459 it was that number
-#Brier score: 0.63184
+#Pass line: our Brier score < Pinnacle's Brier score 
+#Brier score: Our model: 0.63184 , The 25-26 pinnacle: 0.5994
+#Result: Fail
 
 import pandas as pd 
 from scipy.stats import poisson
 import numpy as np
+
+Pass = False
 
 #Copied chance function from team_strenght 
 def chance(home_exp , away_exp):
@@ -128,6 +131,7 @@ def accuracy_to_bookmaker_prob(data):
     accuracy_table["avg_diff_from_pinnacle"] = (abs(accuracy_table["H"] - accuracy_table["Real_home_prob"]) + abs(accuracy_table["D"] - accuracy_table["Real_draw_prob"]) + abs(accuracy_table["A"] - accuracy_table["Real_away_prob"]))/3
     return accuracy_table
 
+#Calculate the accuracy of our modell compared to the pinnacle
 diff_from_pinnacle_training = accuracy_to_bookmaker_prob(probability_with_strenght_training)
 avg_diff_from_pinnacle_training = diff_from_pinnacle_training["avg_diff_from_pinnacle"].mean()
 probability_sameless_training = 1 - avg_diff_from_pinnacle_training
@@ -136,10 +140,49 @@ diff_from_pinnacle_test = accuracy_to_bookmaker_prob(probability_with_strenght_t
 avg_diff_from_pinnacle_test = diff_from_pinnacle_test["avg_diff_from_pinnacle"].mean()
 probability_sameless_test = 1 - avg_diff_from_pinnacle_test
 
+#From the brier_score test gather the data
 brier_score = pd.read_excel("Overall_brier_score_table.xlsx")
 brier_score = brier_score["OOS_test_brier_score"][0]
 print(brier_score)
 
+#Compute the brier_score for 2025/26 Pinnacle 
+pinnacle_table_25_26 = probability_with_strenght_test.copy()
+pinnacle_table_25_26 = pinnacle_table_25_26.drop(columns=["H" , "A" , "D" ])
+pinnacle_table_25_26 = pinnacle_table_25_26.rename(columns={"Real_home_prob": "H" , "Real_draw_prob": "D" , "Real_away_prob": "A"})
 
+def add_outcomes(df):
+    df["Home_output"] = (df["FTHG"] > df["FTAG"]).astype(int)
+    df["Draw_output"] = (df["FTHG"] == df["FTAG"]).astype(int)
+    df["Away_output"] = (df["FTHG"] < df["FTAG"]).astype(int)
+    return df
 
+pinnacle_table_25_26 = add_outcomes(pinnacle_table_25_26)
 
+def brier_score_in_a_Dateframe(dataframe):
+    model_home = dataframe["H"]
+    model_draw = dataframe["D"]
+    model_away = dataframe["A"]
+    home_output = dataframe["Home_output"]
+    draw_output = dataframe["Draw_output"]
+    away_output = dataframe["Away_output"]
+    overall_home_brier_score = 0
+    home_brier_scores = (model_home - home_output)**2
+    draw_brier_scores = (model_draw - draw_output)**2
+    away_brier_scores = (model_away - away_output)**2
+    overall_brier_scores = home_brier_scores + draw_brier_scores + away_brier_scores
+    avrage_brier_scores = overall_brier_scores.mean()
+    return avrage_brier_scores
+
+pinnacle_25_26_brier_score = brier_score_in_a_Dateframe(pinnacle_table_25_26)
+table_zero = pd.read_excel("Overall_brier_score_table.xlsx")
+table_zero["2025-26_Pinnacle_brier_score"] = pinnacle_25_26_brier_score
+table_zero.to_excel("Overall_brier_score_table.xlsx" , index=False)
+
+if pinnacle_25_26_brier_score < brier_score:
+    Pass = False
+else:
+    Pass = True
+
+print(f"The test passed: {Pass}")
+print(f"The brier score of pinnacle: {pinnacle_25_26_brier_score}")
+print(f"The brier score of OOS test: {brier_score}")
