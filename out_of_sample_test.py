@@ -70,22 +70,30 @@ def training_strengh_data(data_real):
     team_avg_table["deffend_score"] = team_avg_table["avg_concered_goal"]/team_avg_table["avg_concered_goal"].mean()
     team_avg_table = team_avg_table.set_index("HomeTeam")
     team_avg_table = team_avg_table.rename(columns={"HomeTeam" : "Team"})
-    data = pd.merge(data , team_avg_table , left_on="HomeTeam" , right_index=True)
-    data = data.rename(columns={"attack_score": "home_attack_score" , "deffend_score": "home_defend_score"})
-    data = pd.merge(data , team_avg_table , left_on="AwayTeam" , right_index=True)
-    data = data.rename(columns={"attack_score": "away_attack_score" , "deffend_score": "away_defend_score"})
-    data = data.drop(columns=["avg_concered_goal_x" , "avg_scored_goal_x" , "avg_concered_goal_y" , "avg_scored_goal_y"])
-    return data
+    team_avg_table = team_avg_table.drop(columns=["avg_concered_goal" , "avg_scored_goal"])
+    return team_avg_table
 
-#Create_the strenght data columns 
-training_data_strenght_calc = training_strengh_data(train_real_prob)
-test_data_strenght_calc = training_data_strenght_calc.copy()
+#run the training_strenght_data function to get a test and a training data too
+rating_strenght = training_strengh_data(train_real_prob)
+
+#Create a function that is add for the match datas the strongth 
+def add_match_data_w_strenght(match , rating):
+    merged_Home_data = pd.merge(match , rating , left_on="HomeTeam" , right_index=True)
+    merged_Home_data = merged_Home_data.rename(columns={"attack_score": "home_attack_score" , "deffend_score": "home_defend_score"})
+    merged_all_data = pd.merge(merged_Home_data , rating , left_on="AwayTeam" , right_index=True)
+    merged_all_data = merged_all_data.rename(columns={"attack_score": "away_attack_score" , "deffend_score": "away_defend_score"})
+    return merged_all_data
+
+#Create the merged tables with our merge function 
+training_data_strenght_calc = add_match_data_w_strenght(train_real_prob , rating_strenght)
+test_data_strenght_calc = add_match_data_w_strenght(test_real_prob , rating_strenght)
+
 
 #Calculate the expected goals for both to the training and the test data too
 training_data_strenght_calc["home_expected_goal"] = avg_home_goal * training_data_strenght_calc["home_attack_score"] * training_data_strenght_calc["away_defend_score"]
 training_data_strenght_calc["away_expected_goal"] = avg_away_goal * training_data_strenght_calc["away_attack_score"] * training_data_strenght_calc["home_defend_score"]
-test_data_strenght_calc["home_expected_goal"] = avg_home_goal * training_data_strenght_calc["home_attack_score"] * training_data_strenght_calc["away_defend_score"]
-test_data_strenght_calc["away_expected_goal"] = avg_away_goal * training_data_strenght_calc["away_attack_score"] * training_data_strenght_calc["home_defend_score"]
+test_data_strenght_calc["home_expected_goal"] = avg_home_goal * test_data_strenght_calc["home_attack_score"] * test_data_strenght_calc["away_defend_score"]
+test_data_strenght_calc["away_expected_goal"] = avg_away_goal * test_data_strenght_calc["away_attack_score"] * test_data_strenght_calc["home_defend_score"]
 
 #Create a function that calculate our probabilities
 def add_probability_to_strenght(data): 
@@ -111,4 +119,7 @@ probability_sameless_training = 1 - avg_diff_from_pinnacle_training
 diff_from_pinnacle_test = accuracy_to_bookmaker_prob(probability_with_strenght_test)
 avg_diff_from_pinnacle_test = diff_from_pinnacle_test["avg_diff_from_pinnacle"].mean()
 probability_sameless_test = 1 - avg_diff_from_pinnacle_test
+
+print(test_data_strenght_calc["Date"].head())
+print(len(test_data_strenght_calc))
 
