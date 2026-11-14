@@ -77,19 +77,38 @@ def training_strengh_data(data_real):
     data = data.drop(columns=["avg_concered_goal_x" , "avg_scored_goal_x" , "avg_concered_goal_y" , "avg_scored_goal_y"])
     return data
 
+#Create_the strenght data columns 
 training_data_strenght_calc = training_strengh_data(train_real_prob)
-test_data_strenght_calc = training_strengh_data(train_real_prob)
+test_data_strenght_calc = training_data_strenght_calc.copy()
 
+#Calculate the expected goals for both to the training and the test data too
 training_data_strenght_calc["home_expected_goal"] = avg_home_goal * training_data_strenght_calc["home_attack_score"] * training_data_strenght_calc["away_defend_score"]
 training_data_strenght_calc["away_expected_goal"] = avg_away_goal * training_data_strenght_calc["away_attack_score"] * training_data_strenght_calc["home_defend_score"]
 test_data_strenght_calc["home_expected_goal"] = avg_home_goal * training_data_strenght_calc["home_attack_score"] * training_data_strenght_calc["away_defend_score"]
 test_data_strenght_calc["away_expected_goal"] = avg_away_goal * training_data_strenght_calc["away_attack_score"] * training_data_strenght_calc["home_defend_score"]
 
+#Create a function that calculate our probabilities
 def add_probability_to_strenght(data): 
     data["H"] = chance(data["home_expected_goal"] , data["away_expected_goal"])[0]
     data["A"] = chance(data["home_expected_goal"] , data["away_expected_goal"])[1]
     data["D"] = chance(data["home_expected_goal"] , data["away_expected_goal"])[2]
     return data
 
-print(add_probability_to_strenght(training_data_strenght_calc))
-print(add_probability_to_strenght(test_data_strenght_calc))
+#Create datas that include our probabilities
+probability_with_strenght_training = add_probability_to_strenght(training_data_strenght_calc)
+probability_with_strenght_test = add_probability_to_strenght(test_data_strenght_calc)
+
+#Create function that is create a new table that include only just needed data nad avg_diff_from_pinnacle 
+def accuracy_to_bookmaker_prob(data):
+    accuracy_table = data[["Date" , "HomeTeam" , "AwayTeam" , "FTHG" , "FTAG" , "FTR" , "Real_home_prob" , 'Real_draw_prob' , "Real_away_prob" , "H" , "A" , "D"]].copy()
+    accuracy_table["avg_diff_from_pinnacle"] = (abs(accuracy_table["H"] - accuracy_table["Real_home_prob"]) + abs(accuracy_table["D"] - accuracy_table["Real_draw_prob"]) + abs(accuracy_table["A"] - accuracy_table["Real_away_prob"]))/3
+    return accuracy_table
+
+diff_from_pinnacle_training = accuracy_to_bookmaker_prob(probability_with_strenght_training)
+avg_diff_from_pinnacle_training = diff_from_pinnacle_training["avg_diff_from_pinnacle"].mean()
+probability_sameless_training = 1 - avg_diff_from_pinnacle_training
+
+diff_from_pinnacle_test = accuracy_to_bookmaker_prob(probability_with_strenght_test)
+avg_diff_from_pinnacle_test = diff_from_pinnacle_test["avg_diff_from_pinnacle"].mean()
+probability_sameless_test = 1 - avg_diff_from_pinnacle_test
+
