@@ -4,11 +4,27 @@
 #Test: 2025/26, promoted teams excluded, same matches for all models 
 #Pass: if the brier score will lower than the Pinnacle's brier score
 #Look at once, no retest watever the result
+#Brier score reproduction test the brier score on training data needed to be: 0.6459 it was that number
+#Brier score: 0.63184
 
 import pandas as pd 
 from scipy.stats import poisson
 import numpy as np
-from team_strength import chance #This function output will be (home_chance , away_chance , draw_chance)
+
+#Copied chance function from team_strenght 
+def chance(home_exp , away_exp):
+    home_c = 0
+    away_c = 0
+    draw_c = 0
+    for h in range(11):
+        for a in range(11):
+            if h > a:
+                home_c += (poisson.pmf(h , home_exp) * poisson.pmf(a , away_exp))
+            if a > h: 
+                away_c += (poisson.pmf(h , home_exp) * poisson.pmf(a , away_exp))
+            if a == h: 
+                draw_c += (poisson.pmf(h , home_exp) * poisson.pmf(a , away_exp))
+    return([home_c , away_c , draw_c])
 
 #Import the original raw data
 raw_training_data = pd.read_csv("datas/prem_data_24_25.csv")
@@ -120,6 +136,10 @@ diff_from_pinnacle_test = accuracy_to_bookmaker_prob(probability_with_strenght_t
 avg_diff_from_pinnacle_test = diff_from_pinnacle_test["avg_diff_from_pinnacle"].mean()
 probability_sameless_test = 1 - avg_diff_from_pinnacle_test
 
-print(test_data_strenght_calc["Date"].head())
-print(len(test_data_strenght_calc))
+brier_score = pd.read_excel("Overall_brier_score_table.xlsx")
+brier_score = brier_score["OOS_test_brier_score"][0]
+print(brier_score)
+
+
+
 

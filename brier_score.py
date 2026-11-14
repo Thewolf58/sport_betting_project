@@ -12,6 +12,7 @@
 import pandas as pd
 from team_strength import accuracy_table #the team strenght data 
 from team_strength import naive_modell_run_on_the_same_sample
+from out_of_sample_test import probability_with_strenght_test
 
 def add_outcomes(df):
     df["Home_output"] = (df["FTHG"] > df["FTAG"]).astype(int)
@@ -19,8 +20,10 @@ def add_outcomes(df):
     df["Away_output"] = (df["FTHG"] < df["FTAG"]).astype(int)
     return df
 
+brier_score_out_of_sample_test = probability_with_strenght_test.copy()
 brier_score_data_team_strenght_model = accuracy_table[["H" , "D" , "A" , "FTHG" , "FTAG"]].copy()
 brier_score_data_team_strenght_model = add_outcomes(brier_score_data_team_strenght_model)
+brier_score_out_of_sample_test = add_outcomes(brier_score_out_of_sample_test)
 
 def brier_score_in_a_Dateframe(dataframe):
     model_home = dataframe["H"]
@@ -50,7 +53,9 @@ naive_modell_data = add_outcomes(naive_modell_data)
 brier_score_overall_table = pd.DataFrame({
     "Pinnacle_brier_score": [brier_score_in_a_Dateframe(brier_score_pinnacle)],
     "Team_strenght_brier_score": [brier_score_in_a_Dateframe(brier_score_data_team_strenght_model)],
-    "Naive_modell_brier_score": [brier_score_in_a_Dateframe(naive_modell_data)]
+    "Naive_modell_brier_score": [brier_score_in_a_Dateframe(naive_modell_data)],
+    "OOS_test_brier_score": [brier_score_in_a_Dateframe(brier_score_out_of_sample_test)]
 }) 
 
 brier_score_overall_table.to_excel("Overall_brier_score_table.xlsx" , index=False)
+
