@@ -39,7 +39,7 @@ Because we use only training season to train our models we can't train our model
  Data comes from: football-data.co.uk for each test we need to write down what data we use 
  1. Naive model: from football-data.co.uk: Premier league data from 2023-2025 include 2 season: 23-24 , 24-25
  2. Team strength model: from football-data.co.uk: Premier league data from 2023-2025 include 2 season: 23-24 , 24-25
- 3. Brier score comperation: Premier league 24-25 season 
+ 3. Brier score comperation: Premier league: 23-24 , 24-25 seasons
  4. Out of sample test: Premier leage 25-26 season
 
 
@@ -55,7 +55,7 @@ For each test we write it down what we compare our model against our model(other
 1. Naive model that measure in 24/25 session the home advantage only and use that numbers to see that in the following season which match have a lower probability that we expected and we bet that lower probability 
 2. Team strength model: it watches the average scored and average conceded goals for all team in 23/24 and it will test it in 24/25 (we will exclude the promoted teams from the 24/25 teams because we don't have data from they)
 3. Write each model Brier score put every model's result into an overall xlsx table and compare the Naive model the Team strength model and the Pinnacle's Brier score against each other and look at it which have the best 
-4. 
+4. OOS test: Test that compare the 25/26 premier league pinnacle brier scores againts the strenght model brier score 
 
 ## Result
 1. Naive model = 0.881 vs Pinnacle (24/25) Pass (line >= 0.85)

@@ -57,5 +57,6 @@ brier_score_overall_table = pd.DataFrame({
     "OOS_test_brier_score": [brier_score_in_a_Dateframe(brier_score_out_of_sample_test)]
 }) 
 
+
 brier_score_overall_table.to_excel("Overall_brier_score_table.xlsx" , index=False)
 
