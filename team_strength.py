@@ -14,10 +14,12 @@
 
 import pandas as pd 
 from scipy.stats import poisson
-from naive_model import naiv_modell
+from naive_model import naive_model_table
 
 traning_data = pd.read_csv("/Users/lukacsadam/python/sport_betting_project/datas/prem_data_23_24.csv" ,).reset_index()
 testing_data = pd.read_csv("/Users/lukacsadam/python/sport_betting_project/datas/prem_data_24_25.csv" ,).reset_index()
+
+naive_table = naive_model_table(traning_data)
 
 team_strenght_training_data = traning_data[["Date" , "HomeTeam" , "AwayTeam" , "FTHG" , "FTAG"]]
 
@@ -110,9 +112,9 @@ avrage_home_goal_odds = avrage_home_goal
 avrage_away_goal_odds = avrage_away_goal
 
 naive_modell_run_on_the_same_sample = final_data[["PSCH" , "PSCD" , "PSCA" , "Fair_home" , "Fair_draw" , "Fair_away" , "FTHG" , "FTAG"]].copy()
-naive_modell_run_on_the_same_sample["naive_model_home_win_%"] = naiv_modell["avrage_%_of_home_win"].iloc[0]/100
-naive_modell_run_on_the_same_sample["naive_model_draw_%"] = naiv_modell["avrage_%_of_draw"].iloc[0]/100
-naive_modell_run_on_the_same_sample["naive_model_away_win_%"] = naiv_modell["avrage_%_of_away_win"][0]/100
+naive_modell_run_on_the_same_sample["naive_model_home_win_%"] = naive_table["average_%_of_home_win"].iloc[0]/100
+naive_modell_run_on_the_same_sample["naive_model_draw_%"] = naive_table["average_%_of_draw"].iloc[0]/100
+naive_modell_run_on_the_same_sample["naive_model_away_win_%"] = naive_table["average_%_of_away_win"].iloc[0]/100
 naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"] = (naive_modell_run_on_the_same_sample["naive_model_home_win_%"] - naive_modell_run_on_the_same_sample["Fair_home"]).abs()
 naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"] = naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"] + (naive_modell_run_on_the_same_sample["naive_model_away_win_%"] - naive_modell_run_on_the_same_sample["Fair_away"]).abs()
 naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"]= naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"] + (naive_modell_run_on_the_same_sample["naive_model_draw_%"] - naive_modell_run_on_the_same_sample["Fair_draw"]).abs()
