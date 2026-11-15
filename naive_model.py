@@ -14,41 +14,34 @@
 #Result: 0,881 , PASS: True
 
 import pandas as pd 
-import datetime
+from pathlib import Path
 
+#Set the paths to the data files
+HERE = Path(__file__).parent
+DATA_DIR = HERE / "datas"
 
-tuning_data = pd.read_csv("/Users/lukacsadam/python/sport_betting_project/datas/prem_data_23_24.csv")
-testing_period_data = pd.read_csv("/Users/lukacsadam/python/sport_betting_project/datas/prem_data_24_25.csv")
+#Load the data for the test
+tuning_data = pd.read_csv(DATA_DIR / "prem_data_23_24.csv")
+testing_period_data = pd.read_csv(DATA_DIR / "prem_data_24_25.csv")
 
-total_prem_match = 380 #From official premier league site
+#Section 1: Build the model
+def naiv_model_table(data):
+    total_match = len(data)
+    pitch_where = data["FTR"].value_counts()
+    naiv_model = pd.DataFrame({
+        "avrage_%_of_home_win": [(pitch_where["H"]/total_match)*100],
+        "avrage_%_of_draw": [(pitch_where["D"]/total_match)*100],
+        "avrage_%_of_away_win": [(pitch_where["A"]/total_match)*100]
+    })
+    return naiv_model
 
-tuning_data = pd.DataFrame(tuning_data).reset_index()
-tuning_data["Date"] =  pd.to_datetime(tuning_data["Date"] , dayfirst=True)
-
-#The following function will watch if we have the same match data as the official premier leauge data
-def data_lenght_test(data):
-    if total_prem_match == len(data):
-        return "We have all match data"
-    else: 
-        return "we dont have the same number of data that we needed"
-
-total_data_match = len(tuning_data)
-
-pitch_where = tuning_data["FTR"].value_counts()
-
-#1. part is to build the model
-
-naiv_modell = pd.DataFrame({
-    "avrage_%_of_home_win": [(pitch_where["H"]/total_data_match)*100],
-    "avrage_%_of_draw": [(pitch_where["D"]/total_data_match)*100],
-    "avrage_%_of_away_win": [(pitch_where["A"]/total_data_match)*100]
-})
+naiv_model = naiv_model_table(tuning_data)
 
 #The naiv_modell_odds will be our fair odds for all match in testing period data
 naiv_modell_odds = pd.DataFrame({
-    "ODDS_of_home_win": [1/(naiv_modell["avrage_%_of_home_win"][0]/100)],
-    "ODDS_of_draw": [1/(naiv_modell["avrage_%_of_draw"][0]/100)],
-    "ODDS_of_away_win": [1/(naiv_modell["avrage_%_of_away_win"][0]/100)],
+    "ODDS_of_home_win": [1/(naiv_model["avrage_%_of_home_win"][0]/100)],
+    "ODDS_of_draw": [1/(naiv_model["avrage_%_of_draw"][0]/100)],
+    "ODDS_of_away_win": [1/(naiv_model["avrage_%_of_away_win"][0]/100)],
 })
 
 #2. part of the model is use the model on the testing_period_data
