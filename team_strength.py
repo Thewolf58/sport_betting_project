@@ -15,34 +15,46 @@
 import pandas as pd 
 from scipy.stats import poisson
 from naive_model import naive_model_table
+from pathlib import Path
 
-traning_data = pd.read_csv("/Users/lukacsadam/python/sport_betting_project/datas/prem_data_23_24.csv" ,).reset_index()
-testing_data = pd.read_csv("/Users/lukacsadam/python/sport_betting_project/datas/prem_data_24_25.csv" ,).reset_index()
+#File paths 
+HERE = Path(__file__).parent
+DATA_DIR = HERE / "datas"
 
+#Import data
+traning_data = pd.read_csv(DATA_DIR/"prem_data_23_24.csv")
+testing_data = pd.read_csv(DATA_DIR/"prem_data_24_25.csv")
 naive_table = naive_model_table(traning_data)
 
-team_strenght_training_data = traning_data[["Date" , "HomeTeam" , "AwayTeam" , "FTHG" , "FTAG"]]
+#Function for scored , conceded goal per team
+def goals_per_team(data):
+    home_score_per_team = data.groupby(["HomeTeam"])["FTHG"].sum().reset_index()
+    away_score_per_team = data.groupby(["AwayTeam"])["FTAG"].sum().reset_index()
+    scored_goal_team = pd.merge(home_score_per_team , away_score_per_team , left_on="HomeTeam" , right_on="AwayTeam")
+    scored_goal_team["Goals"] = scored_goal_team["FTHG"] + scored_goal_team["FTAG"]
+    scored_goal_team = scored_goal_team.drop(columns=["FTHG" , "FTAG", "AwayTeam"])
+    scored_goal_team = scored_goal_team.rename(columns={"HomeTeam": "Team"})
 
-Home_team_scored_goals = team_strenght_training_data.groupby(["HomeTeam"])["FTHG"].sum().reset_index()
-Away_team_scored_goals = team_strenght_training_data.groupby(["AwayTeam"])["FTAG"].sum().reset_index()
-Home_team_concered_goals = team_strenght_training_data.groupby(["HomeTeam"])["FTAG"].sum().reset_index()
-Away_team_concered_goals = team_strenght_training_data.groupby(["AwayTeam"])["FTHG"].sum().reset_index()
-Home_team_scored_goals = Home_team_scored_goals.rename(columns={"HomeTeam" : "Team"})
-Away_team_scored_goals = Away_team_scored_goals.rename(columns={"AwayTeam": "Team"})
-Home_team_concered_goals = Home_team_concered_goals.rename(columns={"HomeTeam": "Team"})
-Away_team_concered_goals = Away_team_concered_goals.rename(columns={"AwayTeam": "Team"})
+    home_conceded_per_team = data.groupby(["HomeTeam"])["FTAG"].sum().reset_index()
+    away_conceded_per_team = data.groupby(["AwayTeam"])["FTHG"].sum().reset_index()
+    all_conceded_team = pd.merge(home_conceded_per_team , away_conceded_per_team , left_on="HomeTeam" , right_on="AwayTeam")
+    all_conceded_team["Conceded_goals"] = all_conceded_team["FTAG"] + all_conceded_team["FTHG"]
+    all_conceded_team = all_conceded_team.drop(columns=["FTAG" , "AwayTeam" , "FTHG"])
+    all_conceded_team = all_conceded_team.rename(columns={"HomeTeam": "Team"})
 
-overall_table = pd.merge(Home_team_scored_goals , Away_team_scored_goals , on="Team" , how="left")
-overall_table = pd.merge(overall_table , Home_team_concered_goals , on="Team" , how="left")
-overall_table = pd.merge(overall_table , Away_team_concered_goals , on="Team" , how="left")
-overall_table = overall_table.rename(columns={"FTHG_x": "scored_goal_home" , "FTAG_x": "scored_goal_away" , "FTAG_y": "concered_goal_home" , "FTHG_y": "concered_goal_away"})
-overall_table["scored_goals"] = overall_table["scored_goal_home"] + overall_table["scored_goal_away"]
-overall_table["concered_goals"] = overall_table["concered_goal_home"] + overall_table["concered_goal_away"]
-overall_table["avg_scored_goal_per_match"] = overall_table["scored_goals"]/38
-overall_table["avg_concered_goal_per_match"] = overall_table["concered_goals"]/38
+    all_goal_team = pd.merge(scored_goal_team, all_conceded_team , on="Team")
+    all_goal_team["Avg_scored_match"] = all_goal_team["Goals"]/38
+    all_goal_team["Avg_concered_match"] = all_goal_team["Conceded_goals"]/38
 
-all_league_goal = overall_table["scored_goals"].sum()
-avrage_goal_per_game = all_league_goal/(len(overall_table)*38)
+    return all_goal_team
+
+#Create a table that contain the scored and conceded goals for all team
+trained_data_with_strength = goals_per_team(traning_data)
+
+all_league_goal = trained_data_with_strength["Goals"].sum()
+average_goal_per_game = all_league_goal/(len(traning_data)*38)
+
+#Done until here 
 
 overall_table["avg_scored_goal/legauge_avg"] = overall_table["avg_scored_goal_per_match"]/avrage_goal_per_game
 overall_table["avg_concered_goal/legauge_avg"] = overall_table["avg_concered_goal_per_match"]/avrage_goal_per_game
@@ -132,3 +144,4 @@ elif avrage_accuracy < naive_model_accuracy:
     print("naive_modell_was_better")
 
 print(naive_model_accuracy)
+print(strength_calculation(testing_data))
