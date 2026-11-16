@@ -45,7 +45,6 @@ def goals_per_team(data):
     all_goal_team = pd.merge(scored_goal_team, all_conceded_team , on="Team")
     all_goal_team["Avg_scored_match"] = all_goal_team["Goals"]/38
     all_goal_team["Avg_concered_match"] = all_goal_team["Conceded_goals"]/38
-
     return all_goal_team
 
 #Create a table that contain the scored and conceded goals for all team
@@ -60,29 +59,43 @@ def average_league_goal(data):
 train_average_goal_per_match = average_league_goal(training_data_team_strength)
 
 #Create a function that write attack score and defend score collums to the original data 
+def attack_defend_score(avg_league_goal , team_strength):
+    attack_defend_table = team_strength.copy()
+    attack_defend_table["Attack"] = attack_defend_table["Avg_scored_match"]/avg_league_goal
+    attack_defend_table["Defend"] = attack_defend_table["Avg_concered_match"]/avg_league_goal
+    attack_defend_table = attack_defend_table.drop(columns={"Goals" , "Conceded_goals" , "Avg_concered_match" , "Avg_scored_match"})
+    return attack_defend_table
 
-#I'm curently at here with cleaning
+#Call the attack_defend_score on training data 
+training_scores = attack_defend_score(train_average_goal_per_match , training_data_team_strength)
 
-training_data_with_power_rate = power_rating(traning_data , training_data_team_strength)
- 
+print(traning_data)
 
-team_strenght_testing_data = testing_data[["Date" , "HomeTeam" , "AwayTeam" , "FTHG" , "FTAG" , "PSCH" , "PSCD" , "PSCA"]]
 
-match_with_goals_data = pd.merge(team_strenght_testing_data , overall_table , left_on="HomeTeam" , right_on="Team")
-match_with_goals_data = match_with_goals_data[["Date" , "HomeTeam", "AwayTeam" , "FTHG" , "FTAG" , "Team" , "avg_scored_goal/legauge_avg" , "avg_concered_goal/legauge_avg" , "PSCH" , "PSCD" , "PSCA"]]
-match_with_goals_data = match_with_goals_data.rename(columns={"avg_scored_goal/legauge_avg": "Home_attack" , "avg_concered_goal/legauge_avg": "Home_defend"})
-match_with_goals_data = pd.merge(match_with_goals_data , overall_table , left_on="AwayTeam" , right_on="Team")
-match_with_goals_data = match_with_goals_data.rename(columns={"avg_scored_goal/legauge_avg": "Away_attack" , "avg_concered_goal/legauge_avg": "Away_defend"})
-match_with_goals_data = match_with_goals_data[["Date" , "HomeTeam" , "AwayTeam" , "FTHG" , "FTAG" , "Home_attack" , "Home_defend" , "Away_attack" , "Away_defend" , "PSCH" , "PSCD" , "PSCA"]]
-final_data = match_with_goals_data
+def add_scores_to_match_data(score , data):
+    final_data = pd.merge(data , score , left_on="HomeTeam" , right_on="Team")
+    final_data = final_data.rename(columns={"Attack" : "Home_attack" , "Defend": "Home_defend"})
+    final_data = pd.merge(final_data , score , left_on="AwayTeam" , right_on="Team")
+    final_data = final_data.rename(columns={"Attack": "Away_attack" , "Defend": "Away_defend"})
+    final_data = final_data.drop(columns=["Team_x" , "Team_y"])
+    return final_data
 
-avrage_home_goal = team_strenght_training_data["FTHG"].mean()
-avrage_away_goal = team_strenght_training_data["FTAG"].mean()
+final_test_data = add_scores_to_match_data(training_scores , testing_data)
+print(final_test_data)
 
-home_advangages = avrage_home_goal/avrage_away_goal #We use this to multiply exp_home goals
+def average_pitch_goal(data):
+    home = data["FTHG"].mean()
+    away = data["FTAG"].mean()
+    avr_pitch_goal = [home , away]
+    return avr_pitch_goal 
 
-final_data["exp_home_goals"] = avrage_home_goal * final_data["Home_attack"] * final_data["Away_defend"]
-final_data["exp_away_goals"] = avrage_away_goal * final_data["Away_attack"] * final_data["Home_defend"]
+avr_home_goal = average_pitch_goal(traning_data)[0]
+avr_away_goal = average_pitch_goal(traning_data)[1]
+
+final_test_data["exp_home_goals"] = avr_home_goal * final_test_data["Home_attack"] * final_test_data["Away_defend"]
+final_test_data["exp_away_goals"] = avr_away_goal * final_test_data["Away_attack"] * final_test_data["Home_defend"]
+
+raise SystemExit
 
 #Poission modell calculation 
 
