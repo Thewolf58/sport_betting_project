@@ -49,15 +49,22 @@ def goals_per_team(data):
     return all_goal_team
 
 #Create a table that contain the scored and conceded goals for all team
-trained_data_with_strength = goals_per_team(traning_data)
+training_data_team_strength = goals_per_team(traning_data)
 
-all_league_goal = trained_data_with_strength["Goals"].sum()
-average_goal_per_game = all_league_goal/(len(traning_data)*38)
+#Create a function that is calculate the avrage league goals per season 
+def average_league_goal(data):
+    all_league_goal = data["Goals"].sum()
+    average_goal_per_game = all_league_goal/(len(data)*38)
+    return average_goal_per_game
 
-#Done until here 
+train_average_goal_per_match = average_league_goal(training_data_team_strength)
 
-overall_table["avg_scored_goal/legauge_avg"] = overall_table["avg_scored_goal_per_match"]/avrage_goal_per_game
-overall_table["avg_concered_goal/legauge_avg"] = overall_table["avg_concered_goal_per_match"]/avrage_goal_per_game
+#Create a function that write attack score and defend score collums to the original data 
+
+#I'm curently at here with cleaning
+
+training_data_with_power_rate = power_rating(traning_data , training_data_team_strength)
+ 
 
 team_strenght_testing_data = testing_data[["Date" , "HomeTeam" , "AwayTeam" , "FTHG" , "FTAG" , "PSCH" , "PSCD" , "PSCA"]]
 
