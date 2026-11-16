@@ -129,16 +129,11 @@ probability_with_strenght_test = add_probability_to_strenght(test_data_strenght_
 def accuracy_to_bookmaker_prob(data):
     accuracy_table = data[["Date" , "HomeTeam" , "AwayTeam" , "FTHG" , "FTAG" , "FTR" , "Real_home_prob" , 'Real_draw_prob' , "Real_away_prob" , "H" , "A" , "D"]].copy()
     accuracy_table["avg_diff_from_pinnacle"] = (abs(accuracy_table["H"] - accuracy_table["Real_home_prob"]) + abs(accuracy_table["D"] - accuracy_table["Real_draw_prob"]) + abs(accuracy_table["A"] - accuracy_table["Real_away_prob"]))/3
-    return accuracy_table
+    test_accuracy = 1- (accuracy_table["avg_diff_from_pinnacle"].mean())
+    return test_accuracy
 
 #Calculate the accuracy of our modell compared to the pinnacle
-diff_from_pinnacle_training = accuracy_to_bookmaker_prob(probability_with_strenght_training)
-avg_diff_from_pinnacle_training = diff_from_pinnacle_training["avg_diff_from_pinnacle"].mean()
-probability_sameless_training = 1 - avg_diff_from_pinnacle_training
-
 diff_from_pinnacle_test = accuracy_to_bookmaker_prob(probability_with_strenght_test)
-avg_diff_from_pinnacle_test = diff_from_pinnacle_test["avg_diff_from_pinnacle"].mean()
-probability_sameless_test = 1 - avg_diff_from_pinnacle_test
 
 #From the brier_score test gather the data
 brier_score = pd.read_excel("Overall_brier_score_table.xlsx")

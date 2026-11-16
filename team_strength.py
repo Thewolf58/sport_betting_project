@@ -52,9 +52,8 @@ training_data_team_strength = goals_per_team(traning_data)
 
 #Create a function that is calculate the avrage league goals per season 
 def average_league_goal(data):
-    all_league_goal = data["Goals"].sum()
-    average_goal_per_game = all_league_goal/(len(data)*38)
-    return average_goal_per_game
+    average_goal_per_team = data["Avg_scored_match"].mean()
+    return average_goal_per_team
 
 train_average_goal_per_match = average_league_goal(training_data_team_strength)
 
@@ -69,9 +68,6 @@ def attack_defend_score(avg_league_goal , team_strength):
 #Call the attack_defend_score on training data 
 training_scores = attack_defend_score(train_average_goal_per_match , training_data_team_strength)
 
-print(traning_data)
-
-
 def add_scores_to_match_data(score , data):
     final_data = pd.merge(data , score , left_on="HomeTeam" , right_on="Team")
     final_data = final_data.rename(columns={"Attack" : "Home_attack" , "Defend": "Home_defend"})
@@ -80,24 +76,24 @@ def add_scores_to_match_data(score , data):
     final_data = final_data.drop(columns=["Team_x" , "Team_y"])
     return final_data
 
+#create the data that contain the attack and defend scores too
 final_test_data = add_scores_to_match_data(training_scores , testing_data)
-print(final_test_data)
 
-def average_pitch_goal(data):
+#Create a function wich is calculate the avrage home and away goal 
+def average_home_away_goal(data):
     home = data["FTHG"].mean()
     away = data["FTAG"].mean()
     avr_pitch_goal = [home , away]
     return avr_pitch_goal 
 
-avr_home_goal = average_pitch_goal(traning_data)[0]
-avr_away_goal = average_pitch_goal(traning_data)[1]
+#Calculate the avrage home and away goal
+avr_home_goal , avr_away_goal = average_home_away_goal(traning_data)
 
+#Calculate the expected goals
 final_test_data["exp_home_goals"] = avr_home_goal * final_test_data["Home_attack"] * final_test_data["Away_defend"]
 final_test_data["exp_away_goals"] = avr_away_goal * final_test_data["Away_attack"] * final_test_data["Home_defend"]
 
-raise SystemExit
-
-#Poission modell calculation 
+#Poission modell function 
 
 def chance(home_exp , away_exp):
     home_c = 0
@@ -113,55 +109,52 @@ def chance(home_exp , away_exp):
                 draw_c += (poisson.pmf(h , home_exp) * poisson.pmf(a , away_exp))
     return([home_c , away_c , draw_c])
 
-final_data["H"] = chance(final_data["exp_home_goals"] , final_data["exp_away_goals"])[0]
-final_data["D"] = chance(final_data["exp_home_goals"] , final_data["exp_away_goals"])[2]
-final_data["A"] = chance(final_data["exp_home_goals"] , final_data["exp_away_goals"])[1]
+final_test_data["H"] , final_test_data["A"] , final_test_data["D"] = chance(final_test_data["exp_home_goals"] , final_test_data["exp_away_goals"])
 
-final_data["SUM_probability"] = (1/final_data["PSCH"] + 1/final_data["PSCD"] + 1/final_data["PSCA"])
-final_data["Pinnacle_margin"] = final_data["SUM_probability"]-1
-final_data["Home_prob_odds"] = 1/final_data["PSCH"]
-final_data["Draw_prob_odds"] = 1/final_data["PSCD"]
-final_data["Away_prob_odds"] = 1/final_data["PSCA"]
-final_data["Fair_home"] = final_data["Home_prob_odds"]/final_data["SUM_probability"]
-final_data["Fair_draw"] = final_data["Draw_prob_odds"]/final_data["SUM_probability"]
-final_data["Fair_away"] = final_data["Away_prob_odds"]/final_data["SUM_probability"]
+def raw_probability_from_odds(data):
+    data = data.copy()
+    data["bookmaker_home_raw_prob"] = 1/data["PSCH"]
+    data["bookmaker_draw_raw_prob"] = 1/data["PSCD"]
+    data["bookmaker_away_raw_prob"] = 1/data["PSCA"]  
+    return data
 
-accuracy_table = final_data[["Date" , "HomeTeam" , "AwayTeam" , "FTHG" , "FTAG" , "PSCH" , "PSCA" , "H" , "D" , "A" , "Fair_home" , "Fair_draw" , "Fair_away" , "Home_prob_odds" , "Draw_prob_odds" , "Away_prob_odds"]]
-accuracy_table["closness_H"] = 1-(abs(accuracy_table["H"] - accuracy_table["Fair_home"]))
-accuracy_table["closness_D"] = 1-(abs(accuracy_table["D"] - accuracy_table["Fair_draw"]))
-accuracy_table["closness_A"] = 1-(abs(accuracy_table["A"] - accuracy_table["Fair_away"]))
+final_test_data = raw_probability_from_odds(final_test_data)
 
-avrage_accuracy = (accuracy_table["closness_H"].mean() + accuracy_table["closness_D"].mean() + accuracy_table["closness_A"].mean())/3
+def real_probability_from_raw_prob(data):
+    data = data.copy()
+    data["sum_prob"] = (data["bookmaker_home_raw_prob"] + data["bookmaker_draw_raw_prob"] + data["bookmaker_away_raw_prob"])
+    data["Real_home_prob"] = data["bookmaker_home_raw_prob"]/data["sum_prob"]
+    data["Real_draw_prob"] = data["bookmaker_draw_raw_prob"]/data["sum_prob"]
+    data["Real_away_prob"] = data["bookmaker_away_raw_prob"]/data["sum_prob"]
+    return data
 
-probability_for_matches_with_our_model = accuracy_table[["Date" , "HomeTeam" , "AwayTeam" , "FTHG" , "FTAG" , "H" , "D" , "A"]].copy()
-probability_for_matches_with_our_model["H"] = probability_for_matches_with_our_model["H"]*100 
-probability_for_matches_with_our_model["D"] = probability_for_matches_with_our_model["D"]*100 
-probability_for_matches_with_our_model["A"] = probability_for_matches_with_our_model["A"]*100 
-probability_for_matches_with_our_model = probability_for_matches_with_our_model.rename(columns={"H": "H_%" , "D": "D_%" , "A": "A_%"})
+final_test_data = real_probability_from_raw_prob(final_test_data)
 
-#Run the naive modell
-avrage_home_goal_odds = avrage_home_goal
-avrage_away_goal_odds = avrage_away_goal
+def accuracy_to_bookmaker_prob(data):
+    accuracy_table = data[["Date" , "HomeTeam" , "AwayTeam" , "FTHG" , "FTAG" , "FTR" , "Real_home_prob" , 'Real_draw_prob' , "Real_away_prob" , "H" , "A" , "D"]].copy()
+    accuracy_table["avg_diff_from_pinnacle"] = (abs(accuracy_table["H"] - accuracy_table["Real_home_prob"]) + abs(accuracy_table["D"] - accuracy_table["Real_draw_prob"]) + abs(accuracy_table["A"] - accuracy_table["Real_away_prob"]))/3
+    test_accuracy = 1- (accuracy_table["avg_diff_from_pinnacle"].mean())
+    return test_accuracy
 
-naive_modell_run_on_the_same_sample = final_data[["PSCH" , "PSCD" , "PSCA" , "Fair_home" , "Fair_draw" , "Fair_away" , "FTHG" , "FTAG"]].copy()
-naive_modell_run_on_the_same_sample["naive_model_home_win_%"] = naive_table["average_%_of_home_win"].iloc[0]/100
-naive_modell_run_on_the_same_sample["naive_model_draw_%"] = naive_table["average_%_of_draw"].iloc[0]/100
-naive_modell_run_on_the_same_sample["naive_model_away_win_%"] = naive_table["average_%_of_away_win"].iloc[0]/100
-naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"] = (naive_modell_run_on_the_same_sample["naive_model_home_win_%"] - naive_modell_run_on_the_same_sample["Fair_home"]).abs()
-naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"] = naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"] + (naive_modell_run_on_the_same_sample["naive_model_away_win_%"] - naive_modell_run_on_the_same_sample["Fair_away"]).abs()
-naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"]= naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"] + (naive_modell_run_on_the_same_sample["naive_model_draw_%"] - naive_modell_run_on_the_same_sample["Fair_draw"]).abs()
-naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"] = naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"]/3
+test_accuracy = accuracy_to_bookmaker_prob(final_test_data)
 
-avrage_diff_from_pinnacle = (naive_modell_run_on_the_same_sample["Diff_from_Pinnacle"]).mean()
-avrage_accuracy_naive_model = 1 - avrage_diff_from_pinnacle
-naive_model_accuracy = avrage_accuracy_naive_model
+#Run the naive modell to compare the accuracy againts the team_strength model
 
-if avrage_accuracy > naive_model_accuracy:
-    print(avrage_accuracy)
-    print("Team_strenght_model_better")
-elif avrage_accuracy < naive_model_accuracy:
-    print(avrage_accuracy)
-    print("naive_modell_was_better")
+naive_modell_run_on_the_same_sample = final_test_data[["Date", "HomeTeam", "AwayTeam" , "FTR" , "Real_home_prob" , "Real_draw_prob" , "Real_away_prob" , "FTHG" , "FTAG"]].copy()
+naive_modell_run_on_the_same_sample["H"] = naive_table["average_%_of_home_win"].iloc[0]/100
+naive_modell_run_on_the_same_sample["D"] = naive_table["average_%_of_draw"].iloc[0]/100
+naive_modell_run_on_the_same_sample["A"] = naive_table["average_%_of_away_win"].iloc[0]/100
 
+naive_model_accuracy = accuracy_to_bookmaker_prob(naive_modell_run_on_the_same_sample)
+
+print(test_accuracy)
 print(naive_model_accuracy)
-print(strength_calculation(testing_data))
+
+if test_accuracy > naive_model_accuracy:
+    print("Team_strenght_model_better")
+elif test_accuracy < naive_model_accuracy:
+    print("naive_modell_was_better")
+else: 
+    print("Equal")
+
+
