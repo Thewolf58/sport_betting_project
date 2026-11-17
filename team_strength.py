@@ -70,18 +70,7 @@ def main():
     #Calculate the naive_model_accuracy
     naive_model_accuracy = accuracy_to_bookmaker_prob(naive_model_run_on_the_same_sample)
 
-    print(test_accuracy)
-    print(naive_model_accuracy)
-
-    #Print which model was better 
-    if test_accuracy > naive_model_accuracy:
-        print("Team_strength_model_better")
-    elif test_accuracy < naive_model_accuracy:
-        print("naive_model_was_better")
-    else: 
-        print("Equal")
-
-    return(test_accuracy , naive_model_accuracy)
+    return([test_accuracy , naive_model_accuracy])
 
 if __name__ == "__main__":
     main()

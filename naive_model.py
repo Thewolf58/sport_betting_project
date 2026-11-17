@@ -53,13 +53,7 @@ def main():
     #The final avrage accuracy:
     average_accuracy = (home_accuracy_mean + draw_accuracy_mean + away_accuracy_mean)/3
 
-    if average_accuracy >= 0.85:
-        naive_model_pass = True
-    else:
-        naive_model_pass = False
-
-    print(average_accuracy)
-    print(naive_model_pass)
+    return average_accuracy 
 
 if __name__ == "__main__":
     main()

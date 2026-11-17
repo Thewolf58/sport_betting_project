@@ -118,3 +118,4 @@ def accuracy_to_bookmaker_prob(data):
     accuracy_table["avg_diff_from_pinnacle"] = (abs(accuracy_table["H"] - accuracy_table["Real_home_prob"]) + abs(accuracy_table["D"] - accuracy_table["Real_draw_prob"]) + abs(accuracy_table["A"] - accuracy_table["Real_away_prob"]))/3
     test_accuracy = 1- (accuracy_table["avg_diff_from_pinnacle"].mean())
     return test_accuracy
+
