@@ -11,21 +11,11 @@
 
 import pandas as pd 
 from pathlib import Path
+from functions import naive_model_table
 
 #Set the paths to the data files
 HERE = Path(__file__).parent
 DATA_DIR = HERE / "datas"
-
-#Section 1: Build the model
-def naive_model_table(data):
-    total_match = len(data)
-    pitch_where = data["FTR"].value_counts()
-    naive_model = pd.DataFrame({
-        "average_%_of_home_win": [(pitch_where["H"]/total_match)*100],
-        "average_%_of_draw": [(pitch_where["D"]/total_match)*100],
-        "average_%_of_away_win": [(pitch_where["A"]/total_match)*100]
-    })
-    return naive_model
 
 def main():
 
