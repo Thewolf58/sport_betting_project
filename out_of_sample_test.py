@@ -11,23 +11,7 @@
 import pandas as pd 
 from scipy.stats import poisson
 import numpy as np
-
-Pass = False
-
-#Copied chance function from team_strenght 
-def chance(home_exp , away_exp):
-    home_c = 0
-    away_c = 0
-    draw_c = 0
-    for h in range(11):
-        for a in range(11):
-            if h > a:
-                home_c += (poisson.pmf(h , home_exp) * poisson.pmf(a , away_exp))
-            if a > h: 
-                away_c += (poisson.pmf(h , home_exp) * poisson.pmf(a , away_exp))
-            if a == h: 
-                draw_c += (poisson.pmf(h , home_exp) * poisson.pmf(a , away_exp))
-    return([home_c , away_c , draw_c])
+from functions import (chance , raw_probability_from_odds , real_probability_from_raw_prob , goals_per_team , average_league_goal, attack_defend_score , add_scores_to_match_data , average_home_away_goal , accuracy_to_bookmaker_prob)
 
 #Import the original raw data
 raw_training_data = pd.read_csv("datas/prem_data_24_25.csv")
@@ -37,147 +21,40 @@ raw_testing_data = pd.read_csv("datas/prem_data_25_26.csv")
 training_data = raw_training_data[["Date" , "Time" , "HomeTeam" , "AwayTeam" , "FTHG" , "FTAG" , "FTR" , "PSCH" , "PSCD" , "PSCA"]]
 testing_data = raw_testing_data[["Date" , "Time" , "HomeTeam" , "AwayTeam" , "FTHG" , "FTAG" , "FTR" , "PSCH" , "PSCD" , "PSCA"]]
 
-#Calculate the raw pinnacle probabilites from the odds
-def raw_probability_from_odds(data):
-    data = data.copy()
-    data["bookmaker_home_raw_prob"] = 1/data["PSCH"]
-    data["bookmaker_draw_raw_prob"] = 1/data["PSCD"]
-    data["bookmaker_away_raw_prob"] = 1/data["PSCA"]  
-    return data
-
 #Used raw_probability_from_odds function to get our raw probabilities from oods
-train_raw_prob = raw_probability_from_odds(training_data)
-test_raw_prob = raw_probability_from_odds(testing_data)
+training_data= raw_probability_from_odds(training_data)
+testing_data = raw_probability_from_odds(testing_data)
 
-#Calculate the real probabilities from the raw probability
-def real_probability_from_raw_prob(data):
-    data = data.copy()
-    data["sum_prob"] = (data["bookmaker_home_raw_prob"] + data["bookmaker_draw_raw_prob"] + data["bookmaker_away_raw_prob"])
-    data["Real_home_prob"] = data["bookmaker_home_raw_prob"]/data["sum_prob"]
-    data["Real_draw_prob"] = data["bookmaker_draw_raw_prob"]/data["sum_prob"]
-    data["Real_away_prob"] = data["bookmaker_away_raw_prob"]/data["sum_prob"]
-    return data
-
-#Used real_probability function to gather the real probability from the side / side + bookmaker edge
-train_real_prob = real_probability_from_raw_prob(train_raw_prob)
-test_real_prob = real_probability_from_raw_prob(test_raw_prob)
+#Use real_probability function to gather the real probability from the side / side + bookmaker edge
+training_data = real_probability_from_raw_prob(training_data)
+testing_data = real_probability_from_raw_prob(testing_data)
 
 #Drop the raws probability from the real_prob datas
-train_real_prob = train_real_prob.drop(columns=["bookmaker_home_raw_prob" ,"bookmaker_draw_raw_prob" , "bookmaker_away_raw_prob"])
-test_real_prob = test_real_prob.drop(columns=["bookmaker_home_raw_prob" ,"bookmaker_draw_raw_prob" , "bookmaker_away_raw_prob"])
+training_data = training_data.drop(columns=["bookmaker_home_raw_prob" ,"bookmaker_draw_raw_prob" , "bookmaker_away_raw_prob"])
+testing_data = testing_data.drop(columns=["bookmaker_home_raw_prob" ,"bookmaker_draw_raw_prob" , "bookmaker_away_raw_prob"])
 
-#Calculate the home advantage:
-avg_away_goal = train_real_prob["FTAG"].mean()
-avg_home_goal = train_real_prob["FTHG"].mean()
+#Calculate the strength of each team
+training_data_strength = goals_per_team(training_data)
 
-#This function calculate from the training season avrage scored and concered goal for each team how strong their defend and how strong their attack 
-def training_strengh_data(data_real):
-    data = data_real.copy()
-    home_team_score = data.groupby("HomeTeam")["FTHG"].sum()
-    away_team_score = data.groupby("AwayTeam")["FTAG"].sum()
-    home_team_concered = data.groupby("HomeTeam")["FTAG"].sum()
-    away_team_concered = data.groupby("AwayTeam")["FTHG"].sum()
-    avg_scored_goal_match = (home_team_score + away_team_score)/38
-    avg_concered_goal_match = (home_team_concered + away_team_concered)/38
-    goal_per_match = len(data)/(data["FTHG"].sum() + data["FTAG"].sum())
-    reset_avg_scored_goal_match = avg_scored_goal_match.reset_index()
-    reset_avg_concered_goal_match = avg_concered_goal_match.reset_index()
-    reset_avg_concered_goal_match = reset_avg_concered_goal_match.rename(columns={"0" : "1"})
-    team_avg_table = pd.merge(reset_avg_concered_goal_match , reset_avg_scored_goal_match , on="HomeTeam")
-    team_avg_table = team_avg_table.rename(columns={"0_x": "avg_concered_goal" , "0_y": "avg_scored_goal"})
-    team_avg_table["attack_score"] = team_avg_table["avg_scored_goal"]/team_avg_table["avg_scored_goal"].mean()
-    team_avg_table["deffend_score"] = team_avg_table["avg_concered_goal"]/team_avg_table["avg_concered_goal"].mean()
-    team_avg_table = team_avg_table.set_index("HomeTeam")
-    team_avg_table = team_avg_table.rename(columns={"HomeTeam" : "Team"})
-    team_avg_table = team_avg_table.drop(columns=["avg_concered_goal" , "avg_scored_goal"])
-    return team_avg_table
+#Call average leauge goal function on training data's strength data 
+training_average_goal = average_league_goal(training_data_strength)
 
-#run the training_strenght_data function to get a test and a training data too
-rating_strenght = training_strengh_data(train_real_prob)
+#Call the attack defend score in training data
+training_teams_scores = attack_defend_score(training_average_goal , training_data_strength)
 
-#Create a function that is add for the match datas the strongth 
-def add_match_data_w_strenght(match , rating):
-    merged_Home_data = pd.merge(match , rating , left_on="HomeTeam" , right_index=True)
-    merged_Home_data = merged_Home_data.rename(columns={"attack_score": "home_attack_score" , "deffend_score": "home_defend_score"})
-    merged_all_data = pd.merge(merged_Home_data , rating , left_on="AwayTeam" , right_index=True)
-    merged_all_data = merged_all_data.rename(columns={"attack_score": "away_attack_score" , "deffend_score": "away_defend_score"})
-    return merged_all_data
+#Call the function wich is put the scores of each team and the match data together on the testing data
+testing_data = add_scores_to_match_data(training_teams_scores , testing_data)
 
-#Create the merged tables with our merge function 
-training_data_strenght_calc = add_match_data_w_strenght(train_real_prob , rating_strenght)
-test_data_strenght_calc = add_match_data_w_strenght(test_real_prob , rating_strenght)
+#Calculate the average goals for home and away
+average_home_goal , average_away_goal = average_home_away_goal(training_data)
 
+#Calculate the expected goals
+testing_data["exp_home_goals"] = average_home_goal * testing_data["Home_attack"] * testing_data["Away_defend"]
+testing_data["exp_away_goals"] = average_away_goal * testing_data["Away_attack"] * testing_data["Home_defend"]
 
-#Calculate the expected goals for both to the training and the test data too
-training_data_strenght_calc["home_expected_goal"] = avg_home_goal * training_data_strenght_calc["home_attack_score"] * training_data_strenght_calc["away_defend_score"]
-training_data_strenght_calc["away_expected_goal"] = avg_away_goal * training_data_strenght_calc["away_attack_score"] * training_data_strenght_calc["home_defend_score"]
-test_data_strenght_calc["home_expected_goal"] = avg_home_goal * test_data_strenght_calc["home_attack_score"] * test_data_strenght_calc["away_defend_score"]
-test_data_strenght_calc["away_expected_goal"] = avg_away_goal * test_data_strenght_calc["away_attack_score"] * test_data_strenght_calc["home_defend_score"]
+#Calculate the probablility of each outcome
+testing_data["H"] , testing_data["A"] , testing_data["D"] = chance(testing_data["exp_home_goals"] , testing_data["exp_away_goals"])
 
-#Create a function that calculate our probabilities
-def add_probability_to_strenght(data): 
-    data["H"] = chance(data["home_expected_goal"] , data["away_expected_goal"])[0]
-    data["A"] = chance(data["home_expected_goal"] , data["away_expected_goal"])[1]
-    data["D"] = chance(data["home_expected_goal"] , data["away_expected_goal"])[2]
-    return data
-
-#Create datas that include our probabilities
-probability_with_strenght_training = add_probability_to_strenght(training_data_strenght_calc)
-probability_with_strenght_test = add_probability_to_strenght(test_data_strenght_calc)
-
-#Create function that is create a new table that include only just needed data nad avg_diff_from_pinnacle 
-def accuracy_to_bookmaker_prob(data):
-    accuracy_table = data[["Date" , "HomeTeam" , "AwayTeam" , "FTHG" , "FTAG" , "FTR" , "Real_home_prob" , 'Real_draw_prob' , "Real_away_prob" , "H" , "A" , "D"]].copy()
-    accuracy_table["avg_diff_from_pinnacle"] = (abs(accuracy_table["H"] - accuracy_table["Real_home_prob"]) + abs(accuracy_table["D"] - accuracy_table["Real_draw_prob"]) + abs(accuracy_table["A"] - accuracy_table["Real_away_prob"]))/3
-    test_accuracy = 1- (accuracy_table["avg_diff_from_pinnacle"].mean())
-    return test_accuracy
-
-#Calculate the accuracy of our modell compared to the pinnacle
-diff_from_pinnacle_test = accuracy_to_bookmaker_prob(probability_with_strenght_test)
-
-#From the brier_score test gather the data
-brier_score = pd.read_excel("Overall_brier_score_table.xlsx")
-brier_score = brier_score["OOS_test_brier_score"][0]
-print(brier_score)
-
-#Compute the brier_score for 2025/26 Pinnacle 
-pinnacle_table_25_26 = probability_with_strenght_test.copy()
-pinnacle_table_25_26 = pinnacle_table_25_26.drop(columns=["H" , "A" , "D" ])
-pinnacle_table_25_26 = pinnacle_table_25_26.rename(columns={"Real_home_prob": "H" , "Real_draw_prob": "D" , "Real_away_prob": "A"})
-
-def add_outcomes(df):
-    df["Home_output"] = (df["FTHG"] > df["FTAG"]).astype(int)
-    df["Draw_output"] = (df["FTHG"] == df["FTAG"]).astype(int)
-    df["Away_output"] = (df["FTHG"] < df["FTAG"]).astype(int)
-    return df
-
-pinnacle_table_25_26 = add_outcomes(pinnacle_table_25_26)
-
-def brier_score_in_a_Dateframe(dataframe):
-    model_home = dataframe["H"]
-    model_draw = dataframe["D"]
-    model_away = dataframe["A"]
-    home_output = dataframe["Home_output"]
-    draw_output = dataframe["Draw_output"]
-    away_output = dataframe["Away_output"]
-    overall_home_brier_score = 0
-    home_brier_scores = (model_home - home_output)**2
-    draw_brier_scores = (model_draw - draw_output)**2
-    away_brier_scores = (model_away - away_output)**2
-    overall_brier_scores = home_brier_scores + draw_brier_scores + away_brier_scores
-    avrage_brier_scores = overall_brier_scores.mean()
-    return avrage_brier_scores
-
-pinnacle_25_26_brier_score = brier_score_in_a_Dateframe(pinnacle_table_25_26)
-table_zero = pd.read_excel("Overall_brier_score_table.xlsx")
-table_zero["2025-26_Pinnacle_brier_score"] = pinnacle_25_26_brier_score
-table_zero.to_excel("Overall_brier_score_table.xlsx" , index=False)
-
-if pinnacle_25_26_brier_score < brier_score:
-    Pass = False
-else:
-    Pass = True
-
-print(f"The test passed: {Pass}")
-print(f"The brier score of pinnacle: {pinnacle_25_26_brier_score}")
-print(f"The brier score of OOS test: {brier_score}")
+#Test accuracy
+accuracy = accuracy_to_bookmaker_prob(testing_data)
+print(accuracy)
