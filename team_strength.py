@@ -15,10 +15,12 @@
 # Measured on: overall average
 # Note: a win smaller than 0.01 = weak result (could be luck)
 #Result: team strength model: 0.9351 , naive model: 0.8967 , PASS: True
+#Brier score: team_strength: 0.6459 , naive model: 0.6595 , Pinnacle: 0.6187
 
 import pandas as pd 
 from pathlib import Path
-from functions import (naive_model_table , goals_per_team , average_league_goal , attack_defend_score , add_scores_to_match_data , average_home_away_goal , chance , raw_probability_from_odds , real_probability_from_raw_prob, accuracy_to_bookmaker_prob)
+from functions import (naive_model_table , goals_per_team , average_league_goal , attack_defend_score , add_scores_to_match_data , average_home_away_goal , chance , raw_probability_from_odds , real_probability_from_raw_prob, accuracy_to_bookmaker_prob ,)
+from brier_score import brier_score
 
 #File paths 
 HERE = Path(__file__).parent
@@ -61,16 +63,35 @@ def main():
     #Calculate the test accuracy compared into Pinnacle's probabilities 
     test_accuracy = accuracy_to_bookmaker_prob(final_test_data)
 
+    #Brier score
+    brier_score_strength = brier_score(final_test_data)
+
     #Run the naive model to compare the accuracy against the team_strength model
     naive_model_run_on_the_same_sample = final_test_data[["Date", "HomeTeam", "AwayTeam" , "FTR" , "Real_home_prob" , "Real_draw_prob" , "Real_away_prob" , "FTHG" , "FTAG"]].copy()
     naive_model_run_on_the_same_sample["H"] = naive_table["average_%_of_home_win"].iloc[0]/100
     naive_model_run_on_the_same_sample["D"] = naive_table["average_%_of_draw"].iloc[0]/100
     naive_model_run_on_the_same_sample["A"] = naive_table["average_%_of_away_win"].iloc[0]/100
 
+    naive_model_same_sample_brier_score = brier_score(naive_model_run_on_the_same_sample)
+
     #Calculate the naive_model_accuracy
     naive_model_accuracy = accuracy_to_bookmaker_prob(naive_model_run_on_the_same_sample)
 
-    return([test_accuracy , naive_model_accuracy])
+    #Pinnacle's brier_score 
+    pinnacle_brier_score = final_test_data.copy()
+    pinnacle_brier_score = pinnacle_brier_score.drop(columns=["H" , "A" , "D"])
+    pinnacle_brier_score = pinnacle_brier_score.rename(columns={"Real_home_prob": "H" , "Real_draw_prob": "D" , "Real_away_prob": "A"})
+    pinnacle_brier_score = brier_score(pinnacle_brier_score)
+
+    print(f"The strength model accuracy to pinnacle's probability: {test_accuracy}")
+    print(f"Naive model accuracy: {naive_model_accuracy}")
+    print(f"The strength model brier score: {brier_score_strength}")
+    print(f"Naive model brier score: {naive_model_same_sample_brier_score}")
+    print(f"Pinnacle's brier score: {pinnacle_brier_score}")
+
+
+
+    return([test_accuracy , naive_model_accuracy , brier_score_strength , naive_model_same_sample_brier_score , pinnacle_brier_score])
 
 if __name__ == "__main__":
     main()

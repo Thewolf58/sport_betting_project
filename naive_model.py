@@ -8,10 +8,11 @@
 #closeness per outcome = 1 - |our probability - Pinnacle's probability|
 #Pass line: average closeness (home , draw, away,  all 380 matches) >= 0.85
 #Result: 0.8812 PASS
+#Brier score (380 matches): 0.6572
 
 import pandas as pd 
 from pathlib import Path
-from functions import naive_model_table
+from functions import (naive_model_table , add_outcomes , brier_score_in_a_Dateframe)
 
 #Set the paths to the data files
 HERE = Path(__file__).parent
@@ -27,7 +28,7 @@ def main():
     #Section 2: Use the model on the test season
 
     #Calculate Pinnacle's fair probabilities from the odds
-    naive_model_data = testing_period_data[["Date" , "Time" , "HomeTeam" , "AwayTeam" , "PSCH", "PSCD" , "PSCA"]].copy()
+    naive_model_data = testing_period_data[["Date" , "Time" , "HomeTeam" , "AwayTeam" , "PSCH", "PSCD" , "PSCA" , "FTAG" , "FTHG"]].copy()
     naive_model_data['Home_probability'] = 1/naive_model_data["PSCH"]
     naive_model_data['Draw_probability'] = 1/naive_model_data["PSCD"]
     naive_model_data['Away_probability'] = 1/naive_model_data["PSCA"]
@@ -37,7 +38,7 @@ def main():
     naive_model_data["Real_away_probability"] = naive_model_data["Away_probability"]/naive_model_data["sum_probability"]
 
     #Create a table with Pinnacle's probabilities and ours 
-    our_model_result = naive_model_data[["Date" , "Time" , "HomeTeam" , "AwayTeam", "Real_home_probability" , "Real_draw_probability" , "Real_away_probability" , ]].copy()
+    our_model_result = naive_model_data[["Date" , "Time" , "HomeTeam" , "AwayTeam", "Real_home_probability" , "Real_draw_probability" , "Real_away_probability" , "FTAG" , "FTHG" ]].copy()
     our_model_result["naive_model_home_prob"] = (naive_model["average_%_of_home_win"].iloc[0])/100
     our_model_result["naive_model_draw_prob"] = (naive_model["average_%_of_draw"].iloc[0])/100
     our_model_result["naive_model_away_prob"] = (naive_model["average_%_of_away_win"].iloc[0])/100
@@ -50,10 +51,17 @@ def main():
     draw_accuracy_mean = our_model_result["Draw_accuracy"].mean()
     away_accuracy_mean = our_model_result["Away_accuracy"].mean()
 
-    #The final avrage accuracy:
-    average_accuracy = (home_accuracy_mean + draw_accuracy_mean + away_accuracy_mean)/3
-    print(average_accuracy)
+    #Calculate the brier score
+    naive_brier = our_model_result.copy()
+    naive_brier = naive_brier.rename(columns={"naive_model_home_prob": "H" , "naive_model_draw_prob": "D" , "naive_model_away_prob": "A"})
+    naive_brier = add_outcomes(naive_brier)
+    naive_brier = brier_score_in_a_Dateframe(naive_brier)
 
+
+    #The final avrage accuracy
+    average_accuracy = (home_accuracy_mean + draw_accuracy_mean + away_accuracy_mean)/3
+    print(f"Naive model average accuracy to pinnacle's probability: {average_accuracy}")
+    print(f"Naive model brier_score on 380 match: {naive_brier}")
     return average_accuracy 
 
 if __name__ == "__main__":
