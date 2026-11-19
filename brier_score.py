@@ -12,7 +12,7 @@
 import pandas as pd
 from team_strength import accuracy_table #the team strenght data 
 from team_strength import naive_modell_run_on_the_same_sample
-from out_of_sample_test import probability_with_strenght_test
+from out_of_sample_test import testing_data
 
 def add_outcomes(df):
     df["Home_output"] = (df["FTHG"] > df["FTAG"]).astype(int)
@@ -20,7 +20,7 @@ def add_outcomes(df):
     df["Away_output"] = (df["FTHG"] < df["FTAG"]).astype(int)
     return df
 
-brier_score_out_of_sample_test = probability_with_strenght_test.copy()
+brier_score_out_of_sample_test = testing_data.copy()
 brier_score_data_team_strenght_model = accuracy_table[["H" , "D" , "A" , "FTHG" , "FTAG"]].copy()
 brier_score_data_team_strenght_model = add_outcomes(brier_score_data_team_strenght_model)
 brier_score_out_of_sample_test = add_outcomes(brier_score_out_of_sample_test)
