@@ -66,6 +66,10 @@ def main():
     accuracy = accuracy_to_bookmaker_prob(testing_data)
     avg_brier_score = brier_score(testing_data)
     pinnacle_brier_score = brier_score_in_a_Dateframe(pinnacle_brier_score)
+    print(f"{accuracy} The model accuracy")
+    print(f"{avg_brier_score} The model brier score ")
+    print(f"{pinnacle_brier_score} Pinnacle brier score")
+    
 
 if __name__ == "__main__":
     main()

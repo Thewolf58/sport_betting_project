@@ -52,6 +52,7 @@ def main():
 
     #The final avrage accuracy:
     average_accuracy = (home_accuracy_mean + draw_accuracy_mean + away_accuracy_mean)/3
+    print(average_accuracy)
 
     return average_accuracy 
 
