@@ -62,7 +62,7 @@ def main():
     average_accuracy = (home_accuracy_mean + draw_accuracy_mean + away_accuracy_mean)/3
     print(f"Naive model average accuracy to pinnacle's probability: {average_accuracy}")
     print(f"Naive model brier_score on 380 match: {naive_brier}")
-    return average_accuracy 
+    return [average_accuracy , naive_brier]
 
 if __name__ == "__main__":
     main()

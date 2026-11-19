@@ -69,6 +69,7 @@ def main():
     print(f"{accuracy} The model accuracy")
     print(f"{avg_brier_score} The model brier score ")
     print(f"{pinnacle_brier_score} Pinnacle brier score")
+    return [avg_brier_score , pinnacle_brier_score , accuracy]
     
 
 if __name__ == "__main__":
