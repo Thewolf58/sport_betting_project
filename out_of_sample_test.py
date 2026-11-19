@@ -5,14 +5,13 @@
 #Pass: if the brier score will lower than the Pinnacle's brier score
 #Look at once, no retest watever the result
 #Pass line: our Brier score < Pinnacle's Brier score 
-#Brier score: Our model: 0.63184 , The 25-26 pinnacle: 0.5990
+#Brier score: Our model: 0.63184 , The 25-26 pinnacle: 0.59495
 #Result: Fail
 
 import pandas as pd 
-from scipy.stats import poisson
 import numpy as np
-from functions import (chance , raw_probability_from_odds , real_probability_from_raw_prob , goals_per_team , average_league_goal, attack_defend_score , add_scores_to_match_data , average_home_away_goal , accuracy_to_bookmaker_prob)
-#from brier_score import brier_score_pinnacle
+from brier_score import brier_score
+from functions import (chance , raw_probability_from_odds , real_probability_from_raw_prob , goals_per_team , average_league_goal, attack_defend_score , add_scores_to_match_data , average_home_away_goal ,accuracy_to_bookmaker_prob , add_outcomes , brier_score_in_a_Dateframe)
 
 #Import the original raw data
 raw_training_data = pd.read_csv("datas/prem_data_24_25.csv")
@@ -57,9 +56,17 @@ def main():
     #Calculate the probablility of each outcome
     testing_data["H"] , testing_data["A"] , testing_data["D"] = chance(testing_data["exp_home_goals"] , testing_data["exp_away_goals"])
 
+    #Calculate the Pinnacle's brier score 
+    pinnacle_brier_score = testing_data.copy()
+    pinnacle_brier_score = pinnacle_brier_score.drop(columns=["H" , "A" , "D"])
+    pinnacle_brier_score = pinnacle_brier_score.rename(columns={"Real_home_prob": "H" , "Real_draw_prob": "D" , "Real_away_prob": "A"})
+    pinnacle_brier_score = add_outcomes(pinnacle_brier_score)
+    
     #Test accuracy
     accuracy = accuracy_to_bookmaker_prob(testing_data)
-    print(accuracy)
+    avg_brier_score = brier_score(testing_data)
+    pinnacle_brier_score = brier_score_in_a_Dateframe(pinnacle_brier_score)
 
 if __name__ == "__main__":
     main()
+

@@ -11,6 +11,8 @@
     #8. raw_probability_from_odds(data) - gives the raw probabilities from odds 
     #9. real_probability_from_raw_prob(data) - fair probability (margin removed)
     #10. accuracy_to_bookmaker_prob(data) - calculates the model accuracy compared to Pinnacle's probability 
+    #11. add_outcomes(df): add a value for each outcome in each match (the value can be 0 or 1)
+    #12. brier_score_in_a_Dateframe(dataframe): calculates the average of the matches brier scores 
 
 import pandas as pd 
 from scipy.stats import poisson
@@ -119,3 +121,26 @@ def accuracy_to_bookmaker_prob(data):
     test_accuracy = 1- (accuracy_table["avg_diff_from_pinnacle"].mean())
     return test_accuracy
 
+#Brier_score functions:
+#11. add_outcomes(df): it is add a value for each outcome in each match (the value can be 0 or 1)
+def add_outcomes(df):
+    df["Home_output"] = (df["FTHG"] > df["FTAG"]).astype(int)
+    df["Draw_output"] = (df["FTHG"] == df["FTAG"]).astype(int)
+    df["Away_output"] = (df["FTHG"] < df["FTAG"]).astype(int)
+    return df
+
+#12. calculates the brier score for each match and gives back the average of the brier scores 
+def brier_score_in_a_Dateframe(dataframe):
+    model_home = dataframe["H"]
+    model_draw = dataframe["D"]
+    model_away = dataframe["A"]
+    home_output = dataframe["Home_output"]
+    draw_output = dataframe["Draw_output"]
+    away_output = dataframe["Away_output"]
+    overall_home_brier_score = 0
+    home_brier_scores = (model_home - home_output)**2
+    draw_brier_scores = (model_draw - draw_output)**2
+    away_brier_scores = (model_away - away_output)**2
+    overall_brier_scores = home_brier_scores + draw_brier_scores + away_brier_scores
+    avrage_brier_scores = overall_brier_scores.mean()
+    return avrage_brier_scores
