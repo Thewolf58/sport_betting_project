@@ -1,0 +1,7 @@
+Model,Matches,Metric,Score,Pass_line,Pass,Brier_score
+Naive,380,closeness,0.8811530897416894,>= 0.85,True,0.657229916897507
+Team strength,272,closeness,0.9351037793324414,> naive on 272,True,0.645948425095846
+Naive_on_team_strength_sample,272,closeness,0.8966571939460628,- (baseline),,0.6594736842105262
+OOS_strength_model,272,brier_score,0.631841604965948,Pinnacle_brier > OOS_strength_model,False,0.631841604965948
+Pinnacle_24-25,272,brier_score,0.6187173330783073,,,0.6187173330783073
+Pinnacle_25-26,272,brier_score,0.5949503176594518,,,0.5949503176594518
