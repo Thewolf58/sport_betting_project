@@ -5,7 +5,6 @@ To improve my Python and statistics skills
 Learn the basics of machine learning
 Develop a model that precisely calculates outcome probabilities close to the bookmakers 
 
-
 ## Definition of Done 
 Deadline: 2026-11-20
 - [x] Create a naive model which calculate the probability of H/D/A by home advantage 
@@ -16,7 +15,7 @@ Deadline: 2026-11-20
 - [x] Compare which model is better on Brier score include the Pinnacle's probability too on the same 272 data 
 - [x] Test the better model (which is have the better Brier score) in 2025-2026 Premier League data 
 - [x] Write down the model accuracy in the 2025-2026 data against the Pinnacle probability 
-- [ ] Clean your code: No absolute path , no unused code , correct spelling , one command runs everything
+- [x] Clean your code: No absolute path , no unused code , correct spelling , one command runs everything
 - [ ] Create a professional README , gitignore , requirements document: README have a clear goal , how to run , results table , and a review at the end of it 
 - [ ] Commit the final file to GitHub 
 
@@ -58,25 +57,22 @@ For each test we write it down what we compare our model against our model(other
 4. OOS test: Test that compare the 25/26 premier league pinnacle brier scores againts the strenght model brier score 
 
 ## Result
-1. Naive model = 0.881 vs Pinnacle (24/25) Pass (line >= 0.85)
-2. Team strength model: Pass line: Better accuracy to the Pinnacle probability than the Naive model , Pass: True , Team strength: 0.935 , Naive model: 0.897
-3. Brier model: Pass: From our model wich have the lower brier score , Pass: team strenght model , team_strenght model: 0.6459 , naive model: 0.6595 , Pinnacle: 0.6187
-4. 2025/26 season data model Pass line: If the Pinnacle Brier score > Our model Brier score , Pass: False , Team_strenght model: The test passed: False
-    The brier score of pinnacle: 0.5949503176594518
-    The brier score of OOS test: 0.631841604965948
-                           Model  Matches       Metric     Score                            Pass_line   Pass  Brier_score
-0                          Naive      380    closeness  0.881153                              >= 0.85   True     0.657230
-1                  Team strength      272    closeness  0.935104                       > naive on 272   True     0.645948
-2  Naive_on_team_strength_sample      272    closeness  0.896657                         - (baseline)   None     0.659474
-3             OOS_strength_model      272  brier_score  0.631842  Pinnacle_brier > OOS_strength_model  False     0.631842
-4                 Pinnacle_24-25      272  brier_score  0.618717                                 None   None     0.618717
-5                 Pinnacle_25-26      272  brier_score  0.594950                                 None   None     0.594950
+
+| Model                         |   Matches | Metric      |    Score | Pass_line                           |   Pass |   Brier_score |
+|:------------------------------|----------:|:------------|---------:|:------------------------------------|-------:|--------------:|
+| Naive                         |       380 | closeness   | 0.881153 | >= 0.85                             |True    |      0.65723  |
+| Team strength                 |       272 | closeness   | 0.935104 | > naive on 272                      |True    |      0.645948 |
+| Naive_on_team_strength_sample |       272 | closeness   | 0.896657 | - (baseline)                        |-       |      0.659474 |
+| OOS_strength_model            |       272 | brier_score | 0.631842 | Pinnacle_brier > OOS_strength_model |False   |      0.631842 |
+| Pinnacle_24-25                |       272 | brier_score | 0.618717 |                                     |-       |      0.618717 |
+| Pinnacle_25-26                |       272 | brier_score | 0.59495  |                                     |-       |      0.59495  |
+
 
 ## How to run
 1. Python 3.9+
 2. pip install -r requirements.txt 
 3. to download the needed data run the download_data.py file 
-4. if you want to see the accuracy of the naive model run the naive_model.py
+4. if you want to see the accuracy of the naive model and brier score run the naive_model.py
 5. if you want to see the accuracy of the team strength model run the team_strength.py
 6. if you want to see the brier scores of our 2 model and the pinnacles brier score run brier_score.py it will produce an overall excel table 
 7. if you want to watch our out of sample test run the out of sample test then you can se the result and it is update the Overall_brier_score_table.xlsx too
