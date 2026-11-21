@@ -16,14 +16,19 @@ Deadline: 2026-11-20
 - [x] Test the better model (which is have the better Brier score) in 2025-2026 Premier League data 
 - [x] Write down the model accuracy in the 2025-2026 data against the Pinnacle probability 
 - [x] Clean your code: No absolute path , no unused code , correct spelling , one command runs everything
-- [ ] Create a professional README , gitignore , requirements document: README have a clear goal , how to run , results table , and a review at the end of it 
-- [ ] Commit the final file to GitHub 
+- [x] Create a professional README , gitignore , requirements document: README have a clear goal , how to run , results table , and a review at the end of it 
+- [x] Commit the final file to GitHub 
 
 
 ## Question
-Can I good enough to develop a probability estimating model which is close to professional bookmakers
-Can I produce good quality documentation and code to be able to publish it 
-Can I finally finish a project before I move to an other 
+1. Can I good enough to develop a probability estimating model which is close to professional bookmakers
+2. Can I produce good quality documentation and code to be able to publish it 
+3. Can I finally finish a project before I move to an other 
+
+## Answers 
+1. I think for the first question the answer is yes becasue our strength model was very accurate to the Pinnacles probability and brier score too but we need to see that it is failed so yes it was close but it failed
+2. For this i think fifth fifth because i think for the first project this documentation is very good but not a professional level yet
+3. The answer is yes
 
 
 ## Rules
@@ -51,10 +56,10 @@ For each test we write it down what we compare our model against our model(other
     
 
 ## Roadmap
-1. Naive model that measure in 24/25 session the home advantage only and use that numbers to see that in the following season which match have a lower probability that we expected and we bet that lower probability 
+1. Naive model that measure in 23/24 season the home advantage only and use that numbers to see that in the following season which match have a lower probability that we expected and we bet that lower probability 
 2. Team strength model: it watches the average scored and average conceded goals for all team in 23/24 and it will test it in 24/25 (we will exclude the promoted teams from the 24/25 teams because we don't have data from they)
-3. Write each model Brier score put every model's result into an overall xlsx table and compare the Naive model the Team strength model and the Pinnacle's Brier score against each other and look at it which have the best 
-4. OOS test: Test that compare the 25/26 premier league pinnacle brier scores againts the strenght model brier score 
+3. OOS test: Test that compare the 25/26 premier league pinnacle brier scores againts the strenght model brier score 
+4. Results file: Create a file that print every result into one table 
 
 ## Result
 
@@ -74,5 +79,11 @@ For each test we write it down what we compare our model against our model(other
 3. to download the needed data run the download_data.py file 
 4. if you want to see the accuracy of the naive model and brier score run the naive_model.py
 5. if you want to see the accuracy of the team strength model run the team_strength.py
-6. if you want to see the brier scores of our 2 model and the pinnacles brier score run brier_score.py it will produce an overall excel table 
-7. if you want to watch our out of sample test run the out of sample test then you can se the result and it is update the Overall_brier_score_table.xlsx too
+6. If you want to see the test results you can see it in here at the readme or if you run results.py 
+
+## What I learned
+1. I learned how to build a project structure
+2. how to build unique functions that i can use in multiple files
+3. how to clean my code 
+4. how to structure my result into one file 
+5. how to use git 

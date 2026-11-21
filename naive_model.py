@@ -2,7 +2,7 @@
 #Every match gets the same home / draw / away probabilities 
 #Training season = 2023/24 (the share of home wins, draws and away wins)
 #Test season = 2024/25 
-#Test only in premier league matches 
+#Test only in Premier League matches 
 #We compare our probabilities with Pinnacle's closing odds (margin removed)
 #to see how close our model is to a professional bookmaker
 #closeness per outcome = 1 - |our probability - Pinnacle's probability|
@@ -25,7 +25,7 @@ def main():
     testing_period_data = pd.read_csv(DATA_DIR / "prem_data_24_25.csv")
     naive_model = naive_model_table(tuning_data)
 
-    #Section 2: Use the model on the test season
+    #Use the model on the test season
 
     #Calculate Pinnacle's fair probabilities from the odds
     naive_model_data = testing_period_data[["Date" , "Time" , "HomeTeam" , "AwayTeam" , "PSCH", "PSCD" , "PSCA" , "FTAG" , "FTHG"]].copy()
@@ -58,10 +58,10 @@ def main():
     naive_brier = brier_score_in_a_Dateframe(naive_brier)
 
 
-    #The final avrage accuracy
+    #The final average accuracy
     average_accuracy = (home_accuracy_mean + draw_accuracy_mean + away_accuracy_mean)/3
-    print(f"Naive model average accuracy to pinnacle's probability: {average_accuracy}")
-    print(f"Naive model brier_score on 380 match: {naive_brier}")
+    print(f"Naive model average accuracy to Pinnacle's probability: {average_accuracy}")
+    print(f"Naive model brier_score on 380 matches: {naive_brier}")
     return [average_accuracy , naive_brier]
 
 if __name__ == "__main__":
