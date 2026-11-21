@@ -27,6 +27,7 @@ def main():
 
     print(results.to_string())
     results.to_csv(HERE / "results.csv" , index=False)
+    return results
 
 
 if __name__ == "__main__":

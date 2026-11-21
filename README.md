@@ -36,7 +36,7 @@ We will only use the 2025-2026 Premier League season data to test our best strat
 Because we use only training season to train our models we can't train our model for the promoted teams so we only test the models in 272 match/season
 
 ## Data
- Data comes from: football-data.co.uk for each test we need to write down what data we use 
+Data from football-data.co.uk, free for private non-commercial use. Not included in the repo; run download_data.py
  1. Naive model: from football-data.co.uk: Premier league data from 2023-2025 include 2 season: 23-24 , 24-25
  2. Team strength model: from football-data.co.uk: Premier league data from 2023-2025 include 2 season: 23-24 , 24-25
  3. Brier score comperation: Premier league: 23-24 , 24-25 seasons
@@ -64,6 +64,13 @@ For each test we write it down what we compare our model against our model(other
 4. 2025/26 season data model Pass line: If the Pinnacle Brier score > Our model Brier score , Pass: False , Team_strenght model: The test passed: False
     The brier score of pinnacle: 0.5949503176594518
     The brier score of OOS test: 0.631841604965948
+                           Model  Matches       Metric     Score                            Pass_line   Pass  Brier_score
+0                          Naive      380    closeness  0.881153                              >= 0.85   True     0.657230
+1                  Team strength      272    closeness  0.935104                       > naive on 272   True     0.645948
+2  Naive_on_team_strength_sample      272    closeness  0.896657                         - (baseline)   None     0.659474
+3             OOS_strength_model      272  brier_score  0.631842  Pinnacle_brier > OOS_strength_model  False     0.631842
+4                 Pinnacle_24-25      272  brier_score  0.618717                                 None   None     0.618717
+5                 Pinnacle_25-26      272  brier_score  0.594950                                 None   None     0.594950
 
 ## How to run
 1. Python 3.9+
