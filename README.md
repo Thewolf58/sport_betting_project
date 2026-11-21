@@ -7,6 +7,7 @@ Develop a model that precisely calculates outcome probabilities close to the boo
 
 ## Definition of Done 
 Deadline: 2026-11-20
+We finished on: 2026-11-21
 - [x] Create a naive model which calculate the probability of H/D/A by home advantage 
 - [x] Create a team strength model which calculate the probability of each outcome (H/D/A) from a strength model and home advantage formula 
 - [x] Test how precise the naive model compared against professional bookmakers probability 
